@@ -25,6 +25,8 @@ if($php -ne ""){
 if($file -eq ""){
 	if(Test-Path "PocketMine-MP.phar"){
 	    $file = "PocketMine-MP.phar"
+	}elseif(Test-Path "src\PocketMine.php"){
+	    $file = "src\PocketMine.php"
 	}else{
 	    echo "PocketMine-MP.phar 또는 PocketMine.php를 찾을 수 없습니다."
 	    echo "https://github.com/TeamSelenyx/LunaX/releases 이곳에서 다운로드 받으실 수 있습니다."
@@ -34,8 +36,8 @@ if($file -eq ""){
 }
 
 function StartServer{
-	$command = "powershell -NoProfile " + $binary + " " + $file + " " + $extraPocketMineArgs
-	iex $command
+	$command = $binary + " " + $file + " " + $extraPocketMineArgs
+	Invoke-Expression $command
 }
 
 $loops = 0
