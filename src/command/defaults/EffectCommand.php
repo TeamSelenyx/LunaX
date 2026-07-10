@@ -29,6 +29,9 @@ use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\StringToEffectParser;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\permission\DefaultPermissionNames;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
 use function count;
@@ -41,6 +44,21 @@ class EffectCommand extends VanillaCommand{
 			"effect",
 			KnownTranslationFactory::pocketmine_command_effect_description(),
 			KnownTranslationFactory::commands_effect_usage()
+		);
+		$this->setOverloads(
+			[
+				[
+					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+					CommandParameter::enum("effect", new CommandEnum("Effect", StringToEffectParser::getInstance()->getKnownAliases()), 0),
+					CommandParameter::standard("seconds", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
+					CommandParameter::standard("amplifier", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
+					CommandParameter::enum("hideParticles", new CommandEnum("Boolean", ["false, true"]), 0, true)
+				],
+				[
+					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+					CommandParameter::enum("clear", new CommandEnum("Clear", ["clear"]), 0)
+				]
+			]
 		);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_EFFECT_SELF,

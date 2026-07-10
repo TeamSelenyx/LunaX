@@ -28,6 +28,9 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\entity\Location;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\Player;
 use pocketmine\utils\AssumptionFailedError;
@@ -45,6 +48,35 @@ class TeleportCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_tp_description(),
 			KnownTranslationFactory::commands_tp_usage(),
 			["teleport"]
+		);
+		$this->setOverloads(
+			[
+				[
+					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_TARGET)
+				],
+				[
+					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION)
+				],
+				[
+					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION),
+					CommandParameter::standard("yaw", AvailableCommandsPacket::ARG_TYPE_FLOAT),
+					CommandParameter::standard("pitch", AvailableCommandsPacket::ARG_TYPE_FLOAT)
+				],
+				[
+					CommandParameter::standard("victim", AvailableCommandsPacket::ARG_TYPE_TARGET),
+					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_TARGET)
+				],
+				[
+					CommandParameter::standard("victim", AvailableCommandsPacket::ARG_TYPE_TARGET),
+					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION)
+				],
+				[
+					CommandParameter::standard("victim", AvailableCommandsPacket::ARG_TYPE_TARGET),
+					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION),
+					CommandParameter::standard("yaw", AvailableCommandsPacket::ARG_TYPE_FLOAT),
+					CommandParameter::standard("pitch", AvailableCommandsPacket::ARG_TYPE_FLOAT)
+				]
+			]
 		);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_TELEPORT_SELF,

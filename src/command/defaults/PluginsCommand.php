@@ -43,6 +43,7 @@ class PluginsCommand extends VanillaCommand{
 			null,
 			["pl"]
 		);
+		$this->setOverloads();
 		$this->setPermission(DefaultPermissionNames::COMMAND_PLUGINS);
 	}
 

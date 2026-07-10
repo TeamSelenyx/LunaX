@@ -32,6 +32,9 @@ use pocketmine\item\LegacyStringToItemParser;
 use pocketmine\item\LegacyStringToItemParserException;
 use pocketmine\item\StringToItemParser;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\utils\TextFormat;
 use function count;
@@ -44,6 +47,15 @@ class ClearCommand extends VanillaCommand{
 			"clear",
 			KnownTranslationFactory::pocketmine_command_clear_description(),
 			KnownTranslationFactory::pocketmine_command_clear_usage()
+		);
+		$this->setOverloads(
+			[
+				[
+					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true),
+					CommandParameter::enum("item", new CommandEnum("Item", []), 0, true),
+					CommandParameter::standard("maxCount", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
+				]
+			]
 		);
 		$this->setPermissions([DefaultPermissionNames::COMMAND_CLEAR_SELF, DefaultPermissionNames::COMMAND_CLEAR_OTHER]);
 	}

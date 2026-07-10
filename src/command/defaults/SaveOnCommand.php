@@ -35,6 +35,7 @@ class SaveOnCommand extends VanillaCommand{
 			"save-on",
 			KnownTranslationFactory::pocketmine_command_saveon_description()
 		);
+		$this->setOverloads();
 		$this->setPermission(DefaultPermissionNames::COMMAND_SAVE_ENABLE);
 	}
 

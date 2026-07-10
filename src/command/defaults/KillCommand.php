@@ -28,6 +28,9 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use function count;
 
@@ -39,6 +42,13 @@ class KillCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_kill_description(),
 			KnownTranslationFactory::pocketmine_command_kill_usage(),
 			["suicide"]
+		);
+		$this->setOverloads(
+			[
+				[
+					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET)
+				]
+			]
 		);
 		$this->setPermissions([DefaultPermissionNames::COMMAND_KILL_SELF, DefaultPermissionNames::COMMAND_KILL_OTHER]);
 	}

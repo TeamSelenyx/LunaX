@@ -27,6 +27,9 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\Player;
 use pocketmine\world\Position;
@@ -41,6 +44,14 @@ class SpawnpointCommand extends VanillaCommand{
 			"spawnpoint",
 			KnownTranslationFactory::pocketmine_command_spawnpoint_description(),
 			KnownTranslationFactory::commands_spawnpoint_usage()
+		);
+		$this->setOverloads(
+			[
+				[
+					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true),
+					CommandParameter::standard("spawnPos", AvailableCommandsPacket::ARG_TYPE_POSITION, 0, true)
+				]
+			]
 		);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_SPAWNPOINT_SELF,
