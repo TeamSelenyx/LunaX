@@ -23,13 +23,11 @@ if($php -ne ""){
 }
 
 if($file -eq ""){
-	if(Test-Path "LunaX.phar"){
-	    $file = "LunaX.phar"
-	}elseif(Test-Path "src\PocketMine.php"){
-	    $file = "src\LunaX.php"
+	if(Test-Path "PocketMine-MP.phar"){
+	    $file = "PocketMine-MP.phar"
 	}else{
-	    echo "LunaX.phar 또는 PocketMine.php를 찾을 수 없습니다."
-	    echo "https://github.com/TeamSelenyx/PocketMine-MP/releases 이곳에서 다운로드 받으실 수 있습니다."
+	    echo "PocketMine-MP.phar 또는 PocketMine.php를 찾을 수 없습니다."
+	    echo "https://github.com/TeamSelenyx/LunaX/releases 이곳에서 다운로드 받으실 수 있습니다."
 	    pause
 	    exit 1
 	}
