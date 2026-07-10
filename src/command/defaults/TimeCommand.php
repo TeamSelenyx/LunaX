@@ -28,7 +28,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\Player;
@@ -46,25 +46,25 @@ class TimeCommand extends VanillaCommand{
 		$this->setOverloads(
 			[
 				[
-					CommandParameter::enum("add", new CommandEnum("Add", ["add"]), 0),
+					CommandParameter::enum("add", new CommandHardEnum("Add", ["add"]), 0),
 					CommandParameter::standard("amount", AvailableCommandsPacket::ARG_TYPE_INT)
 				],
 				[
-					CommandParameter::enum("query", new CommandEnum("Query", ["query"]), 0)
+					CommandParameter::enum("query", new CommandHardEnum("Query", ["query"]), 0)
 				],
 				[
-					CommandParameter::enum("set", new CommandEnum("Set", ["set"]), 0),
+					CommandParameter::enum("set", new CommandHardEnum("Set", ["set"]), 0),
 					CommandParameter::standard("amount", AvailableCommandsPacket::ARG_TYPE_INT)
 				],
 				[
-					CommandParameter::enum("set", new CommandEnum("Set", ["set"]), 0),
-					CommandParameter::enum("time", new CommandEnum("TimeSpec", ["day", "midnight", "night", "noon", "sunrise", "sunset"]), 0)
+					CommandParameter::enum("set", new CommandHardEnum("Set", ["set"]), 0),
+					CommandParameter::enum("time", new CommandHardEnum("TimeSpec", ["day", "midnight", "night", "noon", "sunrise", "sunset"]), 0)
 				],
 				[
-					CommandParameter::enum("start", new CommandEnum("Start", ["start"]), 0)
+					CommandParameter::enum("start", new CommandHardEnum("Start", ["start"]), 0)
 				],
 				[
-					CommandParameter::enum("stop", new CommandEnum("Stop", ["stop"]), 0)
+					CommandParameter::enum("stop", new CommandHardEnum("Stop", ["stop"]), 0)
 				]
 			]
 		);

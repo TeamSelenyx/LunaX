@@ -30,7 +30,7 @@ use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\StringToEnchantmentParser;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use function count;
@@ -52,7 +52,7 @@ class EnchantCommand extends VanillaCommand{
 				],
 				[
 					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("enchantmentName", new CommandEnum("Enchant", []), 0),
+					CommandParameter::enum("enchantmentName", new CommandHardEnum("Enchant", []), 0),
 					CommandParameter::standard("level", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
 				]
 			]

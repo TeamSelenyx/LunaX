@@ -28,7 +28,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\Player;
@@ -51,23 +51,23 @@ class WhitelistCommand extends VanillaCommand{
 		$this->setOverloads(
 			[
 				[
-					CommandParameter::enum("reload", new CommandEnum("Reload", ["reload"]), 0, false)
+					CommandParameter::enum("reload", new CommandHardEnum("Reload", ["reload"]), 0, false)
 				],
 				[
-					CommandParameter::enum("on", new CommandEnum("On", ["on"]), 0, false)
+					CommandParameter::enum("on", new CommandHardEnum("On", ["on"]), 0, false)
 				],
 				[
-					CommandParameter::enum("off", new CommandEnum("Off", ["off"]), 0, false)
+					CommandParameter::enum("off", new CommandHardEnum("Off", ["off"]), 0, false)
 				],
 				[
-					CommandParameter::enum("list", new CommandEnum("List", ["list"]), 0, false)
+					CommandParameter::enum("list", new CommandHardEnum("List", ["list"]), 0, false)
 				],
 				[
-					CommandParameter::enum("add", new CommandEnum("Add", ["add"]), 0, false),
+					CommandParameter::enum("add", new CommandHardEnum("Add", ["add"]), 0, false),
 					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET)
 				],
 				[
-					CommandParameter::enum("remove", new CommandEnum("Remove", ["remove"]), 0, false),
+					CommandParameter::enum("remove", new CommandHardEnum("Remove", ["remove"]), 0, false),
 					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET)
 				]
 			]

@@ -28,7 +28,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\Player;
@@ -65,16 +65,16 @@ class TimingsCommand extends VanillaCommand{
 		$this->setOverloads(
 			[
 				[
-					CommandParameter::enum("on", new CommandEnum("TimingsOn", ["on"]), 0, false)
+					CommandParameter::enum("on", new CommandHardEnum("TimingsOn", ["on"]), 0, false)
 				],
 				[
-					CommandParameter::enum("off", new CommandEnum("TimingsOff", ["off"]), 0, false)
+					CommandParameter::enum("off", new CommandHardEnum("TimingsOff", ["off"]), 0, false)
 				],
 				[
-					CommandParameter::enum("reset", new CommandEnum("TimingsReset", ["reset"]), 0, false)
+					CommandParameter::enum("reset", new CommandHardEnum("TimingsReset", ["reset"]), 0, false)
 				],
 				[
-					CommandParameter::enum("paste", new CommandEnum("TimingsPaste", ["merged", "report", "paste"]), 0, false)
+					CommandParameter::enum("paste", new CommandHardEnum("TimingsPaste", ["merged", "report", "paste"]), 0, false)
 				]
 			]
 		);

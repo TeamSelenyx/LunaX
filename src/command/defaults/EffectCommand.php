@@ -30,7 +30,7 @@ use pocketmine\entity\effect\StringToEffectParser;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
@@ -49,14 +49,14 @@ class EffectCommand extends VanillaCommand{
 			[
 				[
 					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("effect", new CommandEnum("Effect", StringToEffectParser::getInstance()->getKnownAliases()), 0),
+					CommandParameter::enum("effect", new CommandHardEnum("Effect", StringToEffectParser::getInstance()->getKnownAliases()), 0),
 					CommandParameter::standard("seconds", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
 					CommandParameter::standard("amplifier", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
-					CommandParameter::enum("hideParticles", new CommandEnum("Boolean", ["false, true"]), 0, true)
+					CommandParameter::enum("hideParticles", new CommandHardEnum("Boolean", ["false, true"]), 0, true)
 				],
 				[
 					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("clear", new CommandEnum("Clear", ["clear"]), 0)
+					CommandParameter::enum("clear", new CommandHardEnum("Clear", ["clear"]), 0)
 				]
 			]
 		);

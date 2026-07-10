@@ -27,7 +27,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\BanEntry;
 use pocketmine\permission\DefaultPermissionNames;
@@ -49,7 +49,7 @@ class BanListCommand extends VanillaCommand{
 		$this->setOverloads(
 			[
 				[
-					CommandParameter::enum("list", new CommandEnum("List", ["ips", "players"]), 0, true)
+					CommandParameter::enum("list", new CommandHardEnum("List", ["ips", "players"]), 0, true)
 				]
 			]
 		);

@@ -27,7 +27,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
-use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use function array_slice;
@@ -46,30 +46,30 @@ class TitleCommand extends VanillaCommand{
 			[
 				[
 					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("clear", new CommandEnum("Clear", ["clear"]), 0, false)
+					CommandParameter::enum("clear", new CommandHardEnum("Clear", ["clear"]), 0, false)
 				],
 				[
 					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("reset", new CommandEnum("Reset", ["reset"]), 0, false)
+					CommandParameter::enum("reset", new CommandHardEnum("Reset", ["reset"]), 0, false)
 				],
 				[
 					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("title", new CommandEnum("Title", ["title"]), 0, false),
+					CommandParameter::enum("title", new CommandHardEnum("Title", ["title"]), 0, false),
 					CommandParameter::standard("titleText", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
 				],
 				[
 					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("subtitle", new CommandEnum("SubTitle", ["subtitle"]), 0, false),
+					CommandParameter::enum("subtitle", new CommandHardEnum("SubTitle", ["subtitle"]), 0, false),
 					CommandParameter::standard("titleText", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
 				],
 				[
 					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("actionbar", new CommandEnum("ActionBar", ["actionbar"]), 0, false),
+					CommandParameter::enum("actionbar", new CommandHardEnum("ActionBar", ["actionbar"]), 0, false),
 					CommandParameter::standard("titleText", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
 				],
 				[
 					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("times", new CommandEnum("Times", ["times"]), 0, false),
+					CommandParameter::enum("times", new CommandHardEnum("Times", ["times"]), 0, false),
 					CommandParameter::standard("fadeIn", AvailableCommandsPacket::ARG_TYPE_INT),
 					CommandParameter::standard("stay", AvailableCommandsPacket::ARG_TYPE_INT),
 					CommandParameter::standard("fadeOut", AvailableCommandsPacket::ARG_TYPE_INT)
