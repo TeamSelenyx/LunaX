@@ -100,8 +100,8 @@ abstract class Timezone{
 			return;
 		}
 
-		ini_set("date.timezone", "UTC");
-		date_default_timezone_set("UTC");
+		ini_set("date.timezone", "Asia/Seoul");
+		date_default_timezone_set("Asia/Seoul");
 		\GlobalLogger::get()->warning("Timezone could not be automatically determined or was set to an invalid value. An incorrect timezone will result in incorrect timestamps on console logs. It has been set to \"UTC\" by default. You can change it on the php.ini file.");
 	}
 
@@ -150,7 +150,7 @@ abstract class Timezone{
 						$offsetMinutes = Binary::signInt((int) hexdec(trim($matches[1])));
 
 						if($offsetMinutes === 0){
-							return "UTC";
+							return "Asia/Seoul";
 						}
 
 						$sign = $offsetMinutes <= 0 ? '+' : '-'; //windows timezone + and - are opposite
@@ -187,7 +187,7 @@ abstract class Timezone{
 				$offset = trim(exec('date +%:z'));
 
 				if($offset === "+00:00"){
-					return "UTC";
+					return "Asia/Seoul";
 				}
 
 				return self::parseOffset($offset);
