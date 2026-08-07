@@ -1016,7 +1016,16 @@ class NetworkSession{
 		}
 		$event = new PlayerResourcePackOfferEvent($this->info, $resourcePacks, $keys, $packManager->resourcePacksRequired());
 		$event->call();
-		$this->setHandler(new ResourcePacksPacketHandler($this, $event->getResourcePacks(), $event->getEncryptionKeys(), $event->mustAccept(), function() : void{
+
+		$cdnUrls = [];
+		foreach($event->getResourcePacks() as $resourcePack){
+			$cdnUrl = $packManager->getPackCdnUrl($resourcePack->getPackId());
+			if($cdnUrl !== null){
+				$cdnUrls[$resourcePack->getPackId()] = $cdnUrl;
+			}
+		}
+
+		$this->setHandler(new ResourcePacksPacketHandler($this, $event->getResourcePacks(), $event->getEncryptionKeys(), $cdnUrls, $event->mustAccept(), function() : void{
 			$this->createPlayer();
 		}));
 	}

@@ -101,7 +101,7 @@ level-settings:
 chunk-sending:
   #To change server normal render distance, change view-distance in server.properties.
   #Amount of chunks sent to players per tick
-  per-tick: 4
+  per-tick: 64
   #Radius of chunks that need to be sent before spawning the player
   spawn-radius: 4
 

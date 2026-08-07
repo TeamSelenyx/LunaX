@@ -28,6 +28,8 @@ use pocketmine\event\world\WorldInitEvent;
 use pocketmine\event\world\WorldLoadEvent;
 use pocketmine\event\world\WorldUnloadEvent;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\cache\ChunkCache;
+use pocketmine\network\mcpe\compression\ZlibCompressor;
 use pocketmine\player\ChunkSelector;
 use pocketmine\Server;
 use pocketmine\world\format\Chunk;
@@ -252,6 +254,23 @@ class WorldManager{
 		$world->setAutoSave($this->autoSave);
 
 		(new WorldLoadEvent($world))->call();
+
+		//Warm up the async generator/population pipeline for the spawn area immediately on load (not just on brand
+		//new world creation), so the first player to join isn't the one who pays for cold worker/generator
+		//registration on the critical path before the client's short "waiting for world data" timeout expires.
+		$spawnLocation = $world->getSpawnLocation();
+		$centerX = $spawnLocation->getFloorX() >> Chunk::COORD_BIT_SIZE;
+		$centerZ = $spawnLocation->getFloorZ() >> Chunk::COORD_BIT_SIZE;
+		foreach((new ChunkSelector())->selectChunks(8, $centerX, $centerZ) as $index){
+			World::getXZ($index, $chunkX, $chunkZ);
+			$world->orderChunkPopulation($chunkX, $chunkZ, null)->onCompletion(static function() use ($world, $chunkX, $chunkZ) : void{
+				//Also warm up the compressed network chunk packet cache using the same compressor singleton that
+				//live NetworkSessions use, so the first real player doesn't pay for cold ChunkRequestTask dispatch.
+				ChunkCache::getInstance($world, ZlibCompressor::getInstance())->request($chunkX, $chunkZ);
+			}, static function() : void{
+				//NOOP: we don't care if the world was unloaded before this completed
+			});
+		}
 
 		return true;
 	}

@@ -2,21 +2,23 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *      _    _ _
+ *     / \  | | |_ __ _ _   _
+ *    / _ \ | | __/ _` | | | |
+ *   / ___ \| | || (_| | |_| |
+ *  /_/   \_\_|\__\__,_|\__, |
+ *                       |___/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
+ * Original work by the PocketMine Team.
+ * https://www.pocketmine.net/
  *
- *
+ * @author Altay Team
+ * @link https://github.com/altayofficial
  */
 
 declare(strict_types=1);
@@ -240,6 +242,13 @@ class InventoryManager{
 		$this->addPredictedSlotChangeInternal($inventory, $slot, $itemStack);
 	}
 
+	public function discardPredictedSlotChange(Inventory $inventory, int $slot) : void{
+		$entry = $this->inventories[spl_object_id($inventory)] ?? null;
+		if($entry !== null){
+			unset($entry->predictions[$slot]);
+		}
+	}
+
 	public function addTransactionPredictedSlotChanges(InventoryTransaction $tx) : void{
 		foreach($tx->getActions() as $action){
 			if($action instanceof SlotChangeAction){
@@ -262,19 +271,18 @@ class InventoryManager{
 			if($action->sourceType !== NetworkInventoryAction::SOURCE_CONTAINER){
 				continue;
 			}
-			if($action->windowId === null){
-				throw new PacketHandlingException("Window ID should always be set for SOURCE_CONTAINER");
-			}
+
+			$windowId = $action->windowId ?? ContainerIds::INVENTORY;
 
 			//legacy transactions should not modify or predict anything other than these inventories, since these are
 			//the only ones accessible when not in-game (ItemStackRequest is used for everything else)
-			if(match($action->windowId){
+			if(match($windowId){
 				ContainerIds::INVENTORY, ContainerIds::OFFHAND, ContainerIds::ARMOR => false,
 				default => true
 			}){
-				throw new PacketHandlingException("Legacy transactions cannot predict changes to inventory with ID " . $action->windowId);
+				throw new PacketHandlingException("Legacy transactions cannot predict changes to inventory with ID " . $windowId);
 			}
-			$info = $this->locateWindowAndSlot($action->windowId, $action->inventorySlot);
+			$info = $this->locateWindowAndSlot($windowId, $action->inventorySlot);
 			if($info === null){
 				continue;
 			}
