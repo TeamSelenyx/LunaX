@@ -31,9 +31,9 @@ use function str_repeat;
 
 final class VersionInfo{
 	public const NAME = "Luna X";
-	public const LUNA_X_VERSION = "1.0.0";
+	public const LUNA_X_VERSION = "1.1.0";
 	public const BASE_VERSION = "5.44.4";
-	public const IS_DEVELOPMENT_BUILD = false;
+	public const IS_DEVELOPMENT_BUILD = true;
 	public const BUILD_CHANNEL = "stable";
 	public const GITHUB_URL = "https://github.com/TeamSelenyx/LunaX";
 
