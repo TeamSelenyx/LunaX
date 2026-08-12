@@ -96,15 +96,18 @@ class ResourcePacksPacketHandler extends PacketHandler{
 	/**
 	 * @param ResourcePack[] $resourcePackStack
 	 * @param string[]       $encryptionKeys    pack UUID => key, leave unset for any packs that are not encrypted
+	 * @param string[]       $cdnUrls           pack UUID => CDN URL, leave unset for any packs served over the game connection
 	 *
 	 * @phpstan-param list<ResourcePack>    $resourcePackStack
 	 * @phpstan-param array<string, string> $encryptionKeys
+	 * @phpstan-param array<string, string> $cdnUrls
 	 * @phpstan-param \Closure() : void     $completionCallback
 	 */
 	public function __construct(
 		private NetworkSession $session,
 		private array $resourcePackStack,
 		private array $encryptionKeys,
+		private array $cdnUrls,
 		private bool $mustAccept,
 		private \Closure $completionCallback
 	){
@@ -129,7 +132,8 @@ class ResourcePacksPacketHandler extends PacketHandler{
 				$this->encryptionKeys[$pack->getPackId()] ?? "",
 				"",
 				$pack->getPackId(),
-				false
+				false,
+				cdnUrl: $this->cdnUrls[$pack->getPackId()] ?? ""
 			);
 		}, $this->resourcePackStack);
 		//TODO: support forcing server packs
@@ -227,9 +231,6 @@ class ResourcePacksPacketHandler extends PacketHandler{
 				break;
 			case ResourcePackClientResponsePacket::STATUS_COMPLETED:
 				$this->session->getLogger()->debug("Resource packs sequence completed");
-				if($this->session->getHandler() === $this){
-					$this->session->setHandler(null);
-				}
 				($this->completionCallback)();
 				break;
 			default:

@@ -863,6 +863,12 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		$world = $this->getWorld();
 
 		$limit = $this->chunksPerTick - count($this->activeChunkGenerationRequests);
+		if($this->spawnChunkLoadCount !== -1){
+			//The client blocks on receiving the spawn-threshold chunks before it will finish connecting, so the
+			//normal per-tick throttle (meant to pace ongoing streaming bandwidth/CPU use) must not be allowed to
+			//stall the initial join sequence, regardless of how chunk-sending.per-tick is configured.
+			$limit = max($limit, $this->spawnThreshold - $this->spawnChunkLoadCount);
+		}
 		foreach($this->loadQueue as $index => $distance){
 			if($count >= $limit){
 				break;

@@ -871,7 +871,7 @@ class NetworkSession{
 	public function transfer(string $ip, int $port, Translatable|string|null $reason = null) : void{
 		$reason ??= KnownTranslationFactory::pocketmine_disconnect_transfer();
 		$this->tryDisconnect(function() use ($ip, $port, $reason) : void{
-			$this->sendDataPacket(TransferPacket::create($ip, $port, false), true);
+			$this->sendDataPacket(TransferPacket::create($ip, $port, false, null), true);
 			if($this->player !== null){
 				$this->player->onPostDisconnect($reason, null);
 			}
@@ -1016,7 +1016,15 @@ class NetworkSession{
 		}
 		$event = new PlayerResourcePackOfferEvent($this->info, $resourcePacks, $keys, $packManager->resourcePacksRequired());
 		$event->call();
-		$this->setHandler(new ResourcePacksPacketHandler($this, $event->getResourcePacks(), $event->getEncryptionKeys(), $event->mustAccept(), function() : void{
+		$cdnUrls = [];
+		foreach($event->getResourcePacks() as $resourcePack){
+			$cdnUrl = $packManager->getPackCdnUrl($resourcePack->getPackId());
+			if($cdnUrl !== null){
+				$cdnUrls[$resourcePack->getPackId()] = $cdnUrl;
+			}
+		}
+
+		$this->setHandler(new ResourcePacksPacketHandler($this, $event->getResourcePacks(), $event->getEncryptionKeys(), $cdnUrls, $event->mustAccept(), function() : void{
 			$this->createPlayer();
 		}));
 	}
