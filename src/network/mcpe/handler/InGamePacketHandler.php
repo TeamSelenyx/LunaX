@@ -90,7 +90,6 @@ use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionD
 use pocketmine\network\mcpe\protocol\types\inventory\UseItemTransactionData;
 use pocketmine\network\mcpe\protocol\types\PlayerAction;
 use pocketmine\network\mcpe\protocol\types\PlayerAuthInputFlags;
-use pocketmine\network\mcpe\protocol\types\PlayerBlockActionStopBreak;
 use pocketmine\network\mcpe\protocol\types\PlayerBlockActionWithBlockInfo;
 use pocketmine\network\PacketHandlingException;
 use pocketmine\player\Player;
@@ -253,15 +252,16 @@ class InGamePacketHandler extends PacketHandler{
 
 		$useItemTransaction = $packet->getItemInteractionData();
 		if($useItemTransaction !== null){
-			if(count($useItemTransaction->getTransactionData()->getActions()) > 100){
+			$transactionData = $useItemTransaction->getTransactionData();
+			if(count($transactionData->getActions()) > 100){
 				throw new PacketHandlingException("Too many actions in item use transaction");
 			}
 
 			$this->inventoryManager->setCurrentItemStackRequestId($useItemTransaction->getRequestId());
-			$this->inventoryManager->addRawPredictedSlotChanges($useItemTransaction->getTransactionData()->getActions());
-			if(!$this->handleUseItemTransaction($useItemTransaction->getTransactionData())){
+			$this->inventoryManager->addRawPredictedSlotChanges($transactionData->getActions());
+			if(!$this->handleUseItemTransaction($transactionData)){
 				$packetHandled = false;
-				$this->session->getLogger()->debug("Unhandled transaction in PlayerAuthInputPacket (type " . $useItemTransaction->getTransactionData()->getActionType() . ")");
+				$this->session->getLogger()->debug("Unhandled transaction in PlayerAuthInputPacket (type " . $transactionData->getActionType() . ")");
 			}else{
 				$this->inventoryManager->syncMismatchedPredictedSlotChanges();
 			}
@@ -280,9 +280,7 @@ class InGamePacketHandler extends PacketHandler{
 			}
 			foreach(Utils::promoteKeys($blockActions) as $k => $blockAction){
 				$actionHandled = false;
-				if($blockAction instanceof PlayerBlockActionStopBreak){
-					$actionHandled = $this->handlePlayerActionFromData($blockAction->getActionType(), new BlockPosition(0, 0, 0), Facing::DOWN);
-				}elseif($blockAction instanceof PlayerBlockActionWithBlockInfo){
+				if($blockAction instanceof PlayerBlockActionWithBlockInfo){
 					$actionHandled = $this->handlePlayerActionFromData($blockAction->getActionType(), $blockAction->getBlockPosition(), $blockAction->getFace());
 				}
 
@@ -303,29 +301,32 @@ class InGamePacketHandler extends PacketHandler{
 
 	public function handleInventoryTransaction(InventoryTransactionPacket $packet) : bool{
 		$result = true;
+		$transactionData = $packet->trData;
 
-		if(count($packet->trData->getActions()) > 50){
+		if($transactionData !== null && count($transactionData->getActions()) > 50){
 			throw new PacketHandlingException("Too many actions in inventory transaction");
 		}
-		if($packet->requestChangedSlots !== null && count($packet->requestChangedSlots) > 10){
+		if(count($packet->requestChangedSlots) > 10){
 			throw new PacketHandlingException("Too many slot sync requests in inventory transaction");
 		}
 
 		$this->inventoryManager->setCurrentItemStackRequestId($packet->requestId);
-		$this->inventoryManager->addRawPredictedSlotChanges($packet->trData->getActions());
+		if($transactionData !== null){
+			$this->inventoryManager->addRawPredictedSlotChanges($transactionData->getActions());
+		}
 
-		if($packet->trData instanceof NormalTransactionData){
-			$result = $this->handleNormalTransaction($packet->trData, $packet->requestId);
-		}elseif($packet->trData instanceof MismatchTransactionData){
+		if($transactionData instanceof NormalTransactionData){
+			$result = $this->handleNormalTransaction($transactionData, $packet->requestId);
+		}elseif($transactionData instanceof MismatchTransactionData){
 			$this->session->getLogger()->debug("Mismatch transaction received");
 			$this->inventoryManager->requestSyncAll();
 			$result = true;
-		}elseif($packet->trData instanceof UseItemTransactionData){
-			$result = $this->handleUseItemTransaction($packet->trData);
-		}elseif($packet->trData instanceof UseItemOnEntityTransactionData){
-			$result = $this->handleUseItemOnEntityTransaction($packet->trData);
-		}elseif($packet->trData instanceof ReleaseItemTransactionData){
-			$result = $this->handleReleaseItemTransaction($packet->trData);
+		}elseif($transactionData instanceof UseItemTransactionData){
+			$result = $this->handleUseItemTransaction($transactionData);
+		}elseif($transactionData instanceof UseItemOnEntityTransactionData){
+			$result = $this->handleUseItemOnEntityTransaction($transactionData);
+		}elseif($transactionData instanceof ReleaseItemTransactionData){
+			$result = $this->handleReleaseItemTransaction($transactionData);
 		}
 
 		$this->inventoryManager->syncMismatchedPredictedSlotChanges();
@@ -334,7 +335,7 @@ class InGamePacketHandler extends PacketHandler{
 		//haven't changed. Handling these is necessary to ensure the client inventory stays in sync if the server
 		//rejects the transaction. The most common example of this is equipping armor by right-click, which doesn't send
 		//a legacy prediction action for the destination armor slot.
-		if($packet->requestChangedSlots !== null){
+		if(count($packet->requestChangedSlots) > 0){
 			foreach($packet->requestChangedSlots as $containerInfo){
 				foreach($containerInfo->getChangedSlotIndexes() as $netSlot){
 					[$windowId, $slot] = ItemStackContainerIdTranslator::translate($containerInfo->getContainerId(), $this->inventoryManager->getCurrentWindowId(), $netSlot);

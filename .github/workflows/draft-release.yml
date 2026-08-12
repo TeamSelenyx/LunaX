@@ -139,7 +139,7 @@ jobs:
       - name: Generate PHP binary download URL
         id: php-binary-url
         run: |
-          echo PHP_BINARY_URL="${{ github.server_url }}/${{ github.repository_owner }}/PHP-Binaries/releases/tag/pm${{ steps.get-pm-version.outputs.PM_MAJOR }}-php-${{ env.PHP_VERSION }}-latest" >> $GITHUB_OUTPUT
+          echo PHP_BINARY_URL="${{ github.server_url }}/pmmp/PHP-Binaries/releases/tag/pm${{ steps.get-pm-version.outputs.PM_MAJOR }}-php-${{ env.PHP_VERSION }}-latest" >> $GITHUB_OUTPUT
 
       - name: Generate build info
         run: |
