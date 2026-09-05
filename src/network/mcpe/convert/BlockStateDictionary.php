@@ -25,18 +25,17 @@ namespace pocketmine\network\mcpe\convert;
 
 use pocketmine\data\bedrock\block\BlockStateData;
 use pocketmine\data\bedrock\block\BlockTypeNames;
-use pocketmine\nbt\NbtDataException;
-use pocketmine\nbt\TreeRoot;
-use pocketmine\network\mcpe\protocol\serializer\NetworkNbtSerializer;
+use pocketmine\nbt\BigEndianNbtSerializer;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\utils\Utils;
 use function array_key_first;
-use function array_map;
 use function count;
 use function get_debug_type;
 use function is_array;
 use function is_int;
 use function is_string;
 use function json_decode;
+use function zlib_decode;
 use const JSON_THROW_ON_ERROR;
 
 /**
@@ -54,6 +53,12 @@ final class BlockStateDictionary{
 	 * @phpstan-var array<string, array<int, int>|int>|null
 	 */
 	private ?array $idMetaToStateIdLookupCache = null;
+
+	/**
+	 * @var int[]
+	 * @phpstan-var array<int, int> network hash => state ID
+	 */
+	private array $networkHashToStateIdLookup = [];
 
 	/**
 	 * @param BlockStateDictionaryEntry[] $states
@@ -76,6 +81,28 @@ final class BlockStateDictionary{
 				$this->stateDataToStateIdLookup[$name] = $stateIds;
 			}
 		}
+
+		foreach($this->states as $stateId => $stateNbt){
+			$this->networkHashToStateIdLookup[$stateNbt->getNetworkHash()] = $stateId;
+		}
+	}
+
+	/**
+	 * Returns the state ID associated with the given 1.26.40+ network block hash (see
+	 * server.properties: block-network-ids-are-hashes), or null if unknown.
+	 */
+	public function lookupStateIdFromNetworkHash(int $hash) : ?int{
+		//the hash is a plain uint32, but some packet fields (e.g. ItemStack's blockRuntimeId) carry
+		//it through a signed varint, which sign-extends any hash >= 0x80000000 into a negative int
+		return $this->networkHashToStateIdLookup[$hash & 0xffffffff] ?? null;
+	}
+
+	/**
+	 * Returns the 1.26.40+ network block hash for the given internal state ID, or null if the
+	 * state ID is unknown.
+	 */
+	public function getNetworkHashFromStateId(int $networkRuntimeId) : ?int{
+		return ($this->states[$networkRuntimeId] ?? null)?->getNetworkHash();
 	}
 
 	/**
@@ -155,14 +182,26 @@ final class BlockStateDictionary{
 	/**
 	 * @return BlockStateData[]
 	 * @phpstan-return list<BlockStateData>
-	 *
-	 * @throws NbtDataException
 	 */
 	public static function loadPaletteFromString(string $blockPaletteContents) : array{
-		return array_map(
-			fn(TreeRoot $root) => BlockStateData::fromNbt($root->mustGetCompoundTag()),
-			(new NetworkNbtSerializer())->readMultiple($blockPaletteContents)
-		);
+		$raw = zlib_decode($blockPaletteContents);
+		if($raw === false){
+			throw new \InvalidArgumentException("Failed to decompress block palette");
+		}
+		$blocks = (new BigEndianNbtSerializer())->read($raw)->mustGetCompoundTag()->getListTag("blocks") ??
+			throw new \InvalidArgumentException("Missing \"blocks\" list in block palette");
+
+		$states = [];
+		foreach($blocks as $i => $blockTag){
+			if(!($blockTag instanceof CompoundTag)){
+				throw new \InvalidArgumentException("Invalid block palette entry at offset $i, expected TAG_Compound, got " . get_debug_type($blockTag));
+			}
+			$stateTag = $blockTag->getCompoundTag(BlockStateData::TAG_STATES) ??
+				throw new \InvalidArgumentException("Missing states for block palette entry $i");
+			$states[] = BlockStateData::current($blockTag->getString(BlockStateData::TAG_NAME), $stateTag->getValue());
+		}
+
+		return $states;
 	}
 
 	public static function loadFromString(string $blockPaletteContents, string $metaMapContents) : self{

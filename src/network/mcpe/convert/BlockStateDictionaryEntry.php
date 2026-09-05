@@ -31,6 +31,7 @@ use pocketmine\nbt\TreeRoot;
 use pocketmine\utils\Utils;
 use function count;
 use function ksort;
+use function unpack;
 use const SORT_STRING;
 
 final class BlockStateDictionaryEntry{
@@ -41,6 +42,7 @@ final class BlockStateDictionaryEntry{
 	private static array $uniqueRawStates = [];
 
 	private string $rawStateProperties;
+	private ?int $networkHash = null;
 
 	/**
 	 * @param Tag[] $stateProperties
@@ -58,6 +60,27 @@ final class BlockStateDictionaryEntry{
 	public function getStateName() : string{ return $this->stateName; }
 
 	public function getRawStateProperties() : string{ return $this->rawStateProperties; }
+
+	/**
+	 * Computes the stable 32-bit network block ID used since 1.26.40's hash-based block palette
+	 * (server.properties: block-network-ids-are-hashes). This is FNV1a-32 over a little-endian
+	 * NBT compound of {name, states} (the "version" field used in canonical_block_states.nbt is
+	 * NOT part of the hashed data), with the resulting digest read back as a big-endian uint32.
+	 */
+	public function getNetworkHash() : int{
+		if($this->networkHash === null){
+			$tag = CompoundTag::create()
+				->setString("name", $this->stateName)
+				->setTag("states", $this->rawStateProperties === "" ?
+					CompoundTag::create() :
+					(new LittleEndianNbtSerializer())->read($this->rawStateProperties)->mustGetCompoundTag()
+				);
+			$bytes = (new LittleEndianNbtSerializer())->write(new TreeRoot($tag));
+			$digest = hash("fnv1a32", $bytes, true);
+			$this->networkHash = unpack("N", $digest)[1];
+		}
+		return $this->networkHash;
+	}
 
 	public function generateStateData() : BlockStateData{
 		return new BlockStateData(

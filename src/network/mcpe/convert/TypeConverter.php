@@ -50,9 +50,8 @@ use pocketmine\network\mcpe\protocol\types\GameMode as ProtocolGameMode;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackExtraData;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackExtraDataShield;
-use pocketmine\network\mcpe\protocol\types\recipe\IntIdMetaItemDescriptor;
+use pocketmine\network\mcpe\protocol\types\recipe\NameItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\RecipeIngredient as ProtocolRecipeIngredient;
-use pocketmine\network\mcpe\protocol\types\recipe\StringIdMetaItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\TagItemDescriptor;
 use pocketmine\player\GameMode;
 use pocketmine\utils\AssumptionFailedError;
@@ -147,9 +146,7 @@ class TypeConverter{
 			return new ProtocolRecipeIngredient(null, 0);
 		}
 		if($ingredient instanceof MetaWildcardRecipeIngredient){
-			$id = $this->itemTypeDictionary->fromStringId($ingredient->getItemId());
-			$meta = self::RECIPE_INPUT_WILDCARD_META;
-			$descriptor = new IntIdMetaItemDescriptor($id, $meta);
+			$descriptor = new NameItemDescriptor($ingredient->getItemId(), self::RECIPE_INPUT_WILDCARD_META);
 		}elseif($ingredient instanceof ExactRecipeIngredient){
 			$item = $ingredient->getItem();
 			[$id, $meta, $blockRuntimeId] = $this->itemTranslator->toNetworkId($item);
@@ -159,7 +156,7 @@ class TypeConverter{
 					throw new AssumptionFailedError("Every block state should have an associated meta value");
 				}
 			}
-			$descriptor = new IntIdMetaItemDescriptor($id, $meta);
+			$descriptor = new NameItemDescriptor($this->itemTypeDictionary->fromIntId($id), $meta);
 		}elseif($ingredient instanceof TagWildcardRecipeIngredient){
 			$descriptor = new TagItemDescriptor($ingredient->getTagName());
 		}else{
@@ -179,12 +176,9 @@ class TypeConverter{
 			return new TagWildcardRecipeIngredient($descriptor->getTag());
 		}
 
-		if($descriptor instanceof IntIdMetaItemDescriptor){
-			$stringId = $this->itemTypeDictionary->fromIntId($descriptor->getId());
-			$meta = $descriptor->getMeta();
-		}elseif($descriptor instanceof StringIdMetaItemDescriptor){
-			$stringId = $descriptor->getId();
-			$meta = $descriptor->getMeta();
+		if($descriptor instanceof NameItemDescriptor){
+			$stringId = $descriptor->getName();
+			$meta = $descriptor->getAuxValue();
 		}else{
 			throw new \LogicException("Unsupported conversion of recipe ingredient to core item stack");
 		}

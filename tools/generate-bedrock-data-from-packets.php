@@ -56,16 +56,14 @@ use pocketmine\network\mcpe\protocol\types\inventory\CreativeGroupEntry;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackExtraData;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackExtraDataShield;
-use pocketmine\network\mcpe\protocol\types\recipe\ComplexAliasItemDescriptor;
-use pocketmine\network\mcpe\protocol\types\recipe\IntIdMetaItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\MolangItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\MultiRecipe;
+use pocketmine\network\mcpe\protocol\types\recipe\NameItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\RecipeIngredient;
 use pocketmine\network\mcpe\protocol\types\recipe\ShapedRecipe;
 use pocketmine\network\mcpe\protocol\types\recipe\ShapelessRecipe;
 use pocketmine\network\mcpe\protocol\types\recipe\SmithingTransformRecipe;
 use pocketmine\network\mcpe\protocol\types\recipe\SmithingTrimRecipe;
-use pocketmine\network\mcpe\protocol\types\recipe\StringIdMetaItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\TagItemDescriptor;
 use pocketmine\network\PacketHandlingException;
 use pocketmine\utils\AssumptionFailedError;
@@ -170,9 +168,11 @@ class ParserPacketHandler extends PacketHandler{
 			if($meta !== 0){
 				throw new PacketHandlingException("Unexpected non-zero blockitem meta");
 			}
-			$blockState = $this->blockTranslator->getBlockStateDictionary()->generateDataFromStateId($itemStack->getBlockRuntimeId()) ?? null;
+			$dictionary = $this->blockTranslator->getBlockStateDictionary();
+			$stateId = $dictionary->lookupStateIdFromNetworkHash($itemStack->getBlockRuntimeId());
+			$blockState = $stateId === null ? null : $dictionary->generateDataFromStateId($stateId);
 			if($blockState === null){
-				throw new PacketHandlingException("Unmapped blockstate ID " . $itemStack->getBlockRuntimeId());
+				throw new PacketHandlingException("Unmapped blockstate hash " . $itemStack->getBlockRuntimeId());
 			}
 
 			$stateProperties = $blockState->getStates();
@@ -325,13 +325,9 @@ class ParserPacketHandler extends PacketHandler{
 		}
 		$data = new RecipeIngredientData();
 
-		if($descriptor instanceof IntIdMetaItemDescriptor || $descriptor instanceof StringIdMetaItemDescriptor){
-			if($descriptor instanceof IntIdMetaItemDescriptor){
-				$data->name = $this->itemTypeDictionary->fromIntId($descriptor->getId());
-			}else{
-				$data->name = $descriptor->getId();
-			}
-			$meta = $descriptor->getMeta();
+		if($descriptor instanceof NameItemDescriptor){
+			$data->name = $descriptor->getName();
+			$meta = $descriptor->getAuxValue();
 			if($meta !== 32767){
 				$blockStateId = $this->blockTranslator->getBlockStateDictionary()->lookupStateIdFromIdMeta($data->name, $meta);
 				if($this->blockItemIdMap->lookupBlockId($data->name) !== null && $blockStateId !== null){
@@ -350,8 +346,6 @@ class ParserPacketHandler extends PacketHandler{
 		}elseif($descriptor instanceof MolangItemDescriptor){
 			$data->molang_expression = $descriptor->getMolangExpression();
 			$data->molang_version = $descriptor->getMolangVersion();
-		}elseif($descriptor instanceof ComplexAliasItemDescriptor){
-			$data->name = $descriptor->getAlias();
 		}else{
 			throw new \UnexpectedValueException("Unknown item descriptor type " . get_class($descriptor));
 		}
@@ -478,8 +472,8 @@ class ParserPacketHandler extends PacketHandler{
 
 		foreach($packet->potionTypeRecipes as $recipe){
 			$recipes["potion_type"][] = new PotionTypeRecipeData(
-				$this->recipeIngredientToJson(new RecipeIngredient(new IntIdMetaItemDescriptor($recipe->getInputItemId(), $recipe->getInputItemMeta()), 1)),
-				$this->recipeIngredientToJson(new RecipeIngredient(new IntIdMetaItemDescriptor($recipe->getIngredientItemId(), $recipe->getIngredientItemMeta()), 1)),
+				$this->recipeIngredientToJson(new RecipeIngredient(new NameItemDescriptor($this->itemTypeDictionary->fromIntId($recipe->getInputItemId()), $recipe->getInputItemMeta()), 1)),
+				$this->recipeIngredientToJson(new RecipeIngredient(new NameItemDescriptor($this->itemTypeDictionary->fromIntId($recipe->getIngredientItemId()), $recipe->getIngredientItemMeta()), 1)),
 				$this->itemStackToJson(new ItemStack($recipe->getOutputItemId(), $recipe->getOutputItemMeta(), 1, 0, "")),
 			);
 		}
@@ -490,7 +484,7 @@ class ParserPacketHandler extends PacketHandler{
 		foreach($packet->potionContainerRecipes as $recipe){
 			$recipes["potion_container_change"][] = new PotionContainerChangeRecipeData(
 				$this->itemTypeDictionary->fromIntId($recipe->getInputItemId()),
-				$this->recipeIngredientToJson(new RecipeIngredient(new IntIdMetaItemDescriptor($recipe->getIngredientItemId(), 0), 1)),
+				$this->recipeIngredientToJson(new RecipeIngredient(new NameItemDescriptor($this->itemTypeDictionary->fromIntId($recipe->getIngredientItemId()), 0), 1)),
 				$this->itemTypeDictionary->fromIntId($recipe->getOutputItemId()),
 			);
 		}
