@@ -252,31 +252,6 @@ final class CommonTypes{
 	 * @phpstan-return array{0: int, 1: int, 2: int}
 	 * @throws DataDecodeException
 	 */
-	private static function getItemStackHeader(ByteBufferReader $in) : array{
-		$id = VarInt::readSignedInt($in);
-		if($id === 0){
-			return [0, 0, 0];
-		}
-
-		$count = LE::readUnsignedShort($in);
-		$meta = VarInt::readUnsignedInt($in);
-
-		return [$id, $count, $meta];
-	}
-
-	private static function putItemStackHeader(ByteBufferWriter $out, ItemStack $itemStack) : bool{
-		if($itemStack->getId() === 0){
-			VarInt::writeSignedInt($out, 0);
-			return false;
-		}
-
-		VarInt::writeSignedInt($out, $itemStack->getId());
-		LE::writeUnsignedShort($out, $itemStack->getCount());
-		VarInt::writeUnsignedInt($out, $itemStack->getMeta());
-
-		return true;
-	}
-
 	/** @throws DataDecodeException */
 	private static function getItemStackFooter(ByteBufferReader $in, int $id, int $meta, int $count) : ItemStack{
 		$blockRuntimeId = VarInt::readSignedInt($in);
@@ -311,60 +286,26 @@ final class CommonTypes{
 
 	/** @throws DataDecodeException */
 	public static function getItemStackWrapper(ByteBufferReader $in) : ItemStackWrapper{
-		[$id, $count, $meta] = self::getItemStackHeader($in);
-		if($id === 0){
-			return new ItemStackWrapper(0, ItemStack::null());
-		}
-
-		$hasNetId = self::getBool($in);
-		$stackId = $hasNetId ? self::readServerItemStackId($in) : 0;
-
-		$itemStack = self::getItemStackFooter($in, $id, $meta, $count);
-
-		return new ItemStackWrapper($stackId, $itemStack);
-	}
-
-	public static function putItemStackWrapper(ByteBufferWriter $out, ItemStackWrapper $itemStackWrapper) : void{
-		$itemStack = $itemStackWrapper->getItemStack();
-		if(self::putItemStackHeader($out, $itemStack)){
-			$hasNetId = $itemStackWrapper->getStackId() !== 0;
-			self::putBool($out, $hasNetId);
-			if($hasNetId){
-				self::writeServerItemStackId($out, $itemStackWrapper->getStackId());
-			}
-
-			self::putItemStackFooter($out, $itemStack);
-		}
-	}
-
-	public static function getNetworkItemStackDescriptor(ByteBufferReader $in) : ItemStackWrapper{
 		$id = LE::readSignedShort($in);
 		$count = LE::readUnsignedShort($in);
 		$meta = VarInt::readUnsignedInt($in);
 
 		$hasNetId = self::getBool($in);
-		if ($hasNetId) {
-			$variant = VarInt::readUnsignedInt($in);
-			$stackId = VarInt::readSignedInt($in);
-		} else {
-			$variant = 0;
-			$stackId = 0;
-		}
+		$stackId = $hasNetId ? VarInt::readSignedInt($in) : 0;
 
 		$blockRuntimeId = VarInt::readUnsignedInt($in);
 		$rawExtraData = self::getString($in);
 
-		return new ItemStackWrapper($stackId, new ItemStack($id, $meta, $count, $blockRuntimeId, $rawExtraData), $variant);
+		return new ItemStackWrapper($stackId, new ItemStack($id, $meta, $count, $blockRuntimeId, $rawExtraData));
 	}
 
-	public static function putNetworkItemStackDescriptor(ByteBufferWriter $out, ItemStackWrapper $itemStackWrapper) : void{
+	public static function putItemStackWrapper(ByteBufferWriter $out, ItemStackWrapper $itemStackWrapper) : void{
 		LE::writeSignedShort($out, $itemStackWrapper->getItemStack()->getId());
 		LE::writeUnsignedShort($out, $itemStackWrapper->getItemStack()->getCount());
 		VarInt::writeUnsignedInt($out, $itemStackWrapper->getItemStack()->getMeta());
 
 		self::putBool($out, $hasNetId = $itemStackWrapper->getStackId() !== 0);
 		if($hasNetId){
-			VarInt::writeUnsignedInt($out, $itemStackWrapper->getStackIdVariant());
 			VarInt::writeSignedInt($out, $itemStackWrapper->getStackId());
 		}
 
@@ -836,6 +777,68 @@ final class CommonTypes{
 			$writer($out, $value);
 		}else{
 			self::putBool($out, false);
+		}
+	}
+
+	/**
+	 * @throws DataDecodeException
+	 */
+	public static function readDummyOptional(ByteBufferReader $in) : void{
+		$dummy = Byte::readUnsigned($in);
+		if($dummy !== 1){
+			throw new PacketDecodeException("Dummy optional first byte should always be 1, got $dummy");
+		}
+	}
+
+	public static function writeDummyOptional(ByteBufferWriter $out) : void{
+		Byte::writeUnsigned($out, 1);
+	}
+
+	/**
+	 * @phpstan-template T
+	 * @phpstan-param \Closure(ByteBufferReader) : T $reader
+	 * @phpstan-return T|null
+	 * @throws DataDecodeException
+	 */
+	public static function readDoubleOptional(ByteBufferReader $in, \Closure $reader) : mixed{
+		self::readDummyOptional($in);
+		return self::readOptional($in, $reader);
+	}
+
+	/**
+	 * @phpstan-template T
+	 * @phpstan-param T|null $value
+	 * @phpstan-param \Closure(ByteBufferWriter, T) : void $writer
+	 */
+	public static function writeDoubleOptional(ByteBufferWriter $out, mixed $value, \Closure $writer) : void{
+		self::writeDummyOptional($out);
+		self::writeOptional($out, $value, $writer);
+	}
+
+	/**
+	 * @phpstan-template T
+	 * @phpstan-param \Closure(ByteBufferReader) : T $reader
+	 * @phpstan-return list<T>
+	 * @throws DataDecodeException
+	 */
+	public static function readList(ByteBufferReader $in, \Closure $reader) : array{
+		$count = VarInt::readUnsignedInt($in);
+		$result = [];
+		for($i = 0; $i < $count; ++$i){
+			$result[] = $reader($in);
+		}
+		return $result;
+	}
+
+	/**
+	 * @phpstan-template T
+	 * @phpstan-param list<T> $list
+	 * @phpstan-param \Closure(ByteBufferWriter, T) : void $writer
+	 */
+	public static function writeList(ByteBufferWriter $out, array $list, \Closure $writer) : void{
+		VarInt::writeUnsignedInt($out, count($list));
+		foreach($list as $item){
+			$writer($out, $item);
 		}
 	}
 }

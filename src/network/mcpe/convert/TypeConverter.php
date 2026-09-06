@@ -33,7 +33,6 @@ use pocketmine\crafting\RecipeIngredient;
 use pocketmine\crafting\TagWildcardRecipeIngredient;
 use pocketmine\data\bedrock\BedrockDataFiles;
 use pocketmine\data\bedrock\item\BlockItemIdMap;
-use pocketmine\data\bedrock\item\ItemTypeNames;
 use pocketmine\data\SavedDataLoadingException;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
@@ -49,7 +48,6 @@ use pocketmine\network\mcpe\protocol\serializer\ItemTypeDictionary;
 use pocketmine\network\mcpe\protocol\types\GameMode as ProtocolGameMode;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackExtraData;
-use pocketmine\network\mcpe\protocol\types\inventory\ItemStackExtraDataShield;
 use pocketmine\network\mcpe\protocol\types\recipe\NameItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\RecipeIngredient as ProtocolRecipeIngredient;
 use pocketmine\network\mcpe\protocol\types\recipe\TagItemDescriptor;
@@ -74,7 +72,6 @@ class TypeConverter{
 	private BlockTranslator $blockTranslator;
 	private ItemTranslator $itemTranslator;
 	private ItemTypeDictionary $itemTypeDictionary;
-	private int $shieldRuntimeId;
 
 	private SkinAdapter $skinAdapter;
 
@@ -90,7 +87,6 @@ class TypeConverter{
 		);
 
 		$this->itemTypeDictionary = ItemTypeDictionaryFromDataHelper::loadFromString(Filesystem::fileGetContents(BedrockDataFiles::REQUIRED_ITEM_LIST_JSON));
-		$this->shieldRuntimeId = $this->itemTypeDictionary->fromStringId(ItemTypeNames::SHIELD);
 
 		$this->itemTranslator = new ItemTranslator(
 			$this->itemTypeDictionary,
@@ -304,9 +300,7 @@ class TypeConverter{
 			[$id, $meta, $blockRuntimeId] = $idMeta;
 		}
 
-		$extraData = $id === $this->shieldRuntimeId ?
-			new ItemStackExtraDataShield($nbt, canPlaceOn: [], canDestroy: [], blockingTick: 0) :
-			new ItemStackExtraData($nbt, canPlaceOn: [], canDestroy: []);
+		$extraData = new ItemStackExtraData($nbt, canPlaceOn: [], canDestroy: []);
 		$extraDataSerializer = new ByteBufferWriter();
 		$extraData->write($extraDataSerializer);
 
@@ -355,8 +349,6 @@ class TypeConverter{
 
 	public function deserializeItemStackExtraData(string $extraData, int $id) : ItemStackExtraData{
 		$extraDataDeserializer = new ByteBufferReader($extraData);
-		return $id === $this->shieldRuntimeId ?
-			ItemStackExtraDataShield::read($extraDataDeserializer) :
-			ItemStackExtraData::read($extraDataDeserializer);
+		return ItemStackExtraData::read($extraDataDeserializer);
 	}
 }
