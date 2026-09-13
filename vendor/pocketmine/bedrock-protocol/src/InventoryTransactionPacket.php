@@ -40,13 +40,13 @@ class InventoryTransactionPacket extends DataPacket implements ClientboundPacket
 	public const TYPE_RELEASE_ITEM = 4;
 
 	public int $requestId;
-	/** @var InventoryTransactionChangedSlotsHack[] */
+	/** @var InventoryTransactionChangedSlotsHack[]|null */
 	public ?array $requestChangedSlots;
 	public TransactionData $trData;
 
 	/**
 	 * @generate-create-func
-	 * @param InventoryTransactionChangedSlotsHack[] $requestChangedSlots
+	 * @param InventoryTransactionChangedSlotsHack[]|null $requestChangedSlots
 	 */
 	public static function create(int $requestId, ?array $requestChangedSlots, TransactionData $trData) : self{
 		$result = new self;
@@ -78,6 +78,7 @@ class InventoryTransactionPacket extends DataPacket implements ClientboundPacket
 			ReleaseItemTransactionData::ID => new ReleaseItemTransactionData(),
 			default => throw new PacketDecodeException("Unknown transaction type $transactionType"),
 		};
+
 		$this->trData->decode($in);
 	}
 

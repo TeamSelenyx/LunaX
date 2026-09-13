@@ -23,8 +23,8 @@ use pocketmine\network\mcpe\protocol\types\inventory\UseItemTransactionData;
 
 final class ItemInteractionData{
 	/**
-	 * @param InventoryTransactionChangedSlotsHack[] $requestChangedSlots
-	 * @phpstan-param list<InventoryTransactionChangedSlotsHack> $requestChangedSlots
+	 * @param InventoryTransactionChangedSlotsHack[]|null $requestChangedSlots
+	 * @phpstan-param list<InventoryTransactionChangedSlotsHack>|null $requestChangedSlots
 	 */
 	public function __construct(
 		private int $requestId,

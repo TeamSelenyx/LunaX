@@ -145,13 +145,13 @@ class SkinData{
 
 	public function isOverride() : bool{ return $this->override; }
 
-	public function isVerified() : bool{
-		return $this->isVerified;
-	}
-
 	public function getTrustedSkinFlag() : string{ return $this->trustedSkinFlag; }
 
 	public function getProfileHash() : string{ return $this->profileHash; }
+
+	public function isVerified() : bool{
+		return $this->isVerified;
+	}
 
 	/**
 	 * @internal

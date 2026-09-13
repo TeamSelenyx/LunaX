@@ -55,7 +55,6 @@ use pocketmine\network\mcpe\protocol\types\skin\PersonaSkinPiece;
 use pocketmine\network\mcpe\protocol\types\skin\SkinAnimation;
 use pocketmine\network\mcpe\protocol\types\skin\SkinData;
 use pocketmine\network\mcpe\protocol\types\skin\SkinImage;
-use pocketmine\network\mcpe\protocol\types\StructureEditorData;
 use pocketmine\network\mcpe\protocol\types\StructureSettings;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -247,11 +246,6 @@ final class CommonTypes{
 		self::putString($out, $image->getData());
 	}
 
-	/**
-	 * @return int[]
-	 * @phpstan-return array{0: int, 1: int, 2: int}
-	 * @throws DataDecodeException
-	 */
 	/** @throws DataDecodeException */
 	private static function getItemStackFooter(ByteBufferReader $in, int $id, int $meta, int $count) : ItemStack{
 		$blockRuntimeId = VarInt::readSignedInt($in);
@@ -284,47 +278,17 @@ final class CommonTypes{
 		self::putItemStackFooter($out, $itemStack);
 	}
 
-	/**
-	 * Used by DeprecatedCraftingResultsEntry (the "results" list inside the deprecated
-	 * CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING item stack request action). Like item stack request actions
-	 * themselves, each descriptor is prefixed by both an outer VarInt type and a redundant inner-type byte that must
-	 * match it - confirmed against a real captured packet and against axolotl-pm/BedrockProtocol's independently
-	 * verified implementation.
-	 *
-	 * @throws PacketDecodeException
-	 * @throws DataDecodeException
-	 */
-	public static function readItemDescriptorNormal(ByteBufferReader $in) : NameItemDescriptor|TagItemDescriptor|MolangItemDescriptor|null{
-		$outerType = VarInt::readUnsignedInt($in);
-		$innerType = Byte::readUnsigned($in);
-		if($outerType !== $innerType){
-			throw new PacketDecodeException("Item descriptor type mismatch: outer type $outerType, inner type $innerType");
-		}
-
-		return match($outerType){
-			ItemDescriptorType::EMPTY => null,
-			ItemDescriptorType::NAME => NameItemDescriptor::read($in),
-			ItemDescriptorType::MOLANG => MolangItemDescriptor::read($in),
-			ItemDescriptorType::TAG => TagItemDescriptor::read($in),
-			default => throw new PacketDecodeException("Unknown item descriptor type $outerType"),
-		};
-	}
-
-	public static function writeItemDescriptorNormal(ByteBufferWriter $out, NameItemDescriptor|TagItemDescriptor|MolangItemDescriptor|null $descriptor) : void{
-		$type = $descriptor?->getTypeId() ?? ItemDescriptorType::EMPTY;
-		VarInt::writeUnsignedInt($out, $type);
-		Byte::writeUnsigned($out, $type);
-		$descriptor?->write($out);
-	}
-
-	/** @throws DataDecodeException */
-	public static function getItemStackWrapper(ByteBufferReader $in) : ItemStackWrapper{
+	public static function getNetworkItemStackDescriptor(ByteBufferReader $in) : ItemStackWrapper{
 		$id = LE::readSignedShort($in);
 		$count = LE::readUnsignedShort($in);
 		$meta = VarInt::readUnsignedInt($in);
 
 		$hasNetId = self::getBool($in);
-		$stackId = $hasNetId ? VarInt::readSignedInt($in) : 0;
+		if ($hasNetId) {
+			$stackId = VarInt::readSignedInt($in);
+		} else {
+			$stackId = 0;
+		}
 
 		$blockRuntimeId = VarInt::readUnsignedInt($in);
 		$rawExtraData = self::getString($in);
@@ -332,7 +296,7 @@ final class CommonTypes{
 		return new ItemStackWrapper($stackId, new ItemStack($id, $meta, $count, $blockRuntimeId, $rawExtraData));
 	}
 
-	public static function putItemStackWrapper(ByteBufferWriter $out, ItemStackWrapper $itemStackWrapper) : void{
+	public static function putNetworkItemStackDescriptor(ByteBufferWriter $out, ItemStackWrapper $itemStackWrapper) : void{
 		LE::writeSignedShort($out, $itemStackWrapper->getItemStack()->getId());
 		LE::writeUnsignedShort($out, $itemStackWrapper->getItemStack()->getCount());
 		VarInt::writeUnsignedInt($out, $itemStackWrapper->getItemStack()->getMeta());
@@ -665,37 +629,6 @@ final class CommonTypes{
 		self::putVector3($out, $structureSettings->pivot);
 	}
 
-	/** @throws DataDecodeException */
-	public static function getStructureEditorData(ByteBufferReader $in) : StructureEditorData{
-		$result = new StructureEditorData();
-
-		$result->structureName = self::getString($in);
-		$result->filteredStructureName = self::getString($in);
-		$result->structureDataField = self::getString($in);
-
-		$result->includePlayers = self::getBool($in);
-		$result->showBoundingBox = self::getBool($in);
-
-		$result->structureBlockType = VarInt::readSignedInt($in);
-		$result->structureSettings = self::getStructureSettings($in);
-		$result->structureRedstoneSaveMode = VarInt::readSignedInt($in);
-
-		return $result;
-	}
-
-	public static function putStructureEditorData(ByteBufferWriter $out, StructureEditorData $structureEditorData) : void{
-		self::putString($out, $structureEditorData->structureName);
-		self::putString($out, $structureEditorData->filteredStructureName);
-		self::putString($out, $structureEditorData->structureDataField);
-
-		self::putBool($out, $structureEditorData->includePlayers);
-		self::putBool($out, $structureEditorData->showBoundingBox);
-
-		VarInt::writeSignedInt($out, $structureEditorData->structureBlockType);
-		self::putStructureSettings($out, $structureEditorData->structureSettings);
-		VarInt::writeSignedInt($out, $structureEditorData->structureRedstoneSaveMode);
-	}
-
 	/** @throws PacketDecodeException */
 	public static function getNbtRoot(ByteBufferReader $in) : TreeRoot{
 		$offset = $in->getOffset();
@@ -788,7 +721,7 @@ final class CommonTypes{
 
 	/**
 	 * @phpstan-template T
-	 * @phpstan-param \Closure(ByteBufferReader) : T $reader
+	 * @phpstan-param \Closure(ByteBufferReader) : (T|null) $reader
 	 * @phpstan-return T|null
 	 * @throws DataDecodeException
 	 */
@@ -815,6 +748,7 @@ final class CommonTypes{
 
 	/**
 	 * @throws DataDecodeException
+	 * @throws PacketDecodeException
 	 */
 	public static function readDummyOptional(ByteBufferReader $in) : void{
 		$dummy = Byte::readUnsigned($in);
@@ -832,6 +766,7 @@ final class CommonTypes{
 	 * @phpstan-param \Closure(ByteBufferReader) : T $reader
 	 * @phpstan-return T|null
 	 * @throws DataDecodeException
+	 * @throws PacketDecodeException
 	 */
 	public static function readDoubleOptional(ByteBufferReader $in, \Closure $reader) : mixed{
 		self::readDummyOptional($in);

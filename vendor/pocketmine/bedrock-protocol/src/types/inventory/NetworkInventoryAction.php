@@ -80,8 +80,8 @@ class NetworkInventoryAction{
 		$this->sourceFlags = CommonTypes::readDoubleOptional($in, VarInt::readUnsignedInt(...));
 
 		$this->inventorySlot = VarInt::readUnsignedInt($in);
-		$this->oldItem = CommonTypes::getItemStackWrapper($in);
-		$this->newItem = CommonTypes::getItemStackWrapper($in);
+		$this->oldItem = CommonTypes::getNetworkItemStackDescriptor($in);
+		$this->newItem = CommonTypes::getNetworkItemStackDescriptor($in);
 
 		return $this;
 	}
@@ -96,7 +96,7 @@ class NetworkInventoryAction{
 		CommonTypes::writeDoubleOptional($out, $this->sourceFlags, VarInt::writeUnsignedInt(...));
 
 		VarInt::writeUnsignedInt($out, $this->inventorySlot);
-		CommonTypes::putItemStackWrapper($out, $this->oldItem);
-		CommonTypes::putItemStackWrapper($out, $this->newItem);
+		CommonTypes::putNetworkItemStackDescriptor($out, $this->oldItem);
+		CommonTypes::putNetworkItemStackDescriptor($out, $this->newItem);
 	}
 }
