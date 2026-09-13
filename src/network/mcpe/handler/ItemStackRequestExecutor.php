@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\handler;
 
+use pocketmine\block\inventory\BeaconInventory;
 use pocketmine\block\inventory\EnchantInventory;
+use pocketmine\data\bedrock\EffectIdMap;
 use pocketmine\inventory\Inventory;
+use pocketmine\inventory\transaction\action\BeaconPaymentAction;
 use pocketmine\inventory\transaction\action\CreateItemAction;
 use pocketmine\inventory\transaction\action\DestroyItemAction;
 use pocketmine\inventory\transaction\action\DropItemAction;
@@ -39,6 +42,7 @@ use pocketmine\network\mcpe\cache\CraftingDataCache;
 use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerUIIds;
 use pocketmine\network\mcpe\protocol\types\inventory\FullContainerName;
+use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\BeaconPaymentStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CraftingConsumeInputStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CraftingCreateSpecificResultStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CraftRecipeAutoStackRequestAction;
@@ -332,6 +336,20 @@ class ItemStackRequestExecutor{
 		}elseif($action instanceof DestroyStackRequestAction){
 			$destroyed = $this->removeItemFromSlot($action->getSource(), $action->getCount());
 			$this->builder->addAction(new DestroyItemAction($destroyed));
+
+		}elseif($action instanceof BeaconPaymentStackRequestAction){
+			$window = $this->player->getCurrentWindow();
+			if(!$window instanceof BeaconInventory){
+				throw new ItemStackRequestProcessException("Expected a beacon inventory as current window");
+			}
+
+			$effectMap = EffectIdMap::getInstance();
+			$primaryEffect = $effectMap->fromId($action->getPrimaryEffectId());
+			if($primaryEffect === null){
+				throw new ItemStackRequestProcessException("No such effect with id: " . $action->getPrimaryEffectId());
+			}
+			$secondaryEffect = $effectMap->fromId($action->getSecondaryEffectId());
+			$this->builder->addAction(new BeaconPaymentAction($window, $primaryEffect, $secondaryEffect));
 
 		}elseif($action instanceof CreativeCreateStackRequestAction){
 			$item = $this->player->getCreativeInventory()->getItem($action->getCreativeItemId());
