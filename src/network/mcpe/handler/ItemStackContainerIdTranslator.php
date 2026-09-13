@@ -25,9 +25,17 @@ namespace pocketmine\network\mcpe\handler;
 
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerUIIds;
-use pocketmine\network\PacketHandlingException;
 
 final class ItemStackContainerIdTranslator{
+
+	/**
+	 * Server-side-only bookkeeping key (never sent on the wire - the client only ever sends a ContainerUIIds value
+	 * + a slot ID, never this number) for the always-available scratch inventory that RECIPE_FOOD_CONTAINER/
+	 * RECIPE_BLOCKS_CONTAINER/RECIPE_FURNACE_ITEMS_CONTAINER resolve to (see translate() below). Deliberately far
+	 * outside every range ContainerIds itself defines (0, 1-100, 119-125) so it can never collide with a real
+	 * dynamically-assigned window ID.
+	 */
+	public const RECIPE_PREVIEW_WINDOW_ID = 200;
 
 	private function __construct(){
 		//NOOP
@@ -36,7 +44,7 @@ final class ItemStackContainerIdTranslator{
 	/**
 	 * @return int[]
 	 * @phpstan-return array{int, int}
-	 * @throws PacketHandlingException
+	 * @throws ItemStackRequestProcessException
 	 */
 	public static function translate(int $containerInterfaceId, int $currentWindowId, int $slotId) : array{
 		return match($containerInterfaceId){
@@ -92,7 +100,23 @@ final class ItemStackContainerIdTranslator{
 
 			//all preview slots are ignored, since the client shouldn't be modifying those directly
 
-			default => throw new PacketHandlingException("Unexpected container UI ID $containerInterfaceId")
+			//Newer clients (recipe book merged into survival inventory/chest screens) send Take/Place actions
+			//against these virtual "recipe ingredient preview" containers even for perfectly ordinary item moves
+			//that have nothing to do with crafting - we don't know the exact client-side semantics, but routing
+			//them at a real (if throwaway) inventory instead of throwing lets whatever Take+Place pair the client
+			//sends round-trip through it like the cursor inventory does, instead of failing the action outright.
+			//See InventoryManager::RECIPE_PREVIEW_WINDOW_ID for where this is registered.
+			ContainerUIIds::RECIPE_FOOD_CONTAINER,
+			ContainerUIIds::RECIPE_BLOCKS_CONTAINER,
+			ContainerUIIds::RECIPE_FURNACE_ITEMS_CONTAINER => [self::RECIPE_PREVIEW_WINDOW_ID, $slotId],
+
+			//Any other container UI ID this version doesn't recognise yet falls through to here. This used to throw
+			//PacketHandlingException, which isn't caught anywhere below ItemStackRequestExecutor and propagated all
+			//the way up to NetworkSession as a fatal "bad packet", killing the player's connection over what's
+			//really just an unsupported action. ItemStackRequestProcessException is the exception type every caller
+			//in this call chain already expects and safely catches (rejects just this one request, re-syncs the
+			//player's inventory, keeps them connected).
+			default => throw new ItemStackRequestProcessException("Unexpected container UI ID $containerInterfaceId")
 		};
 	}
 }

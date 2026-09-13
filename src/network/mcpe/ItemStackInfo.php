@@ -23,14 +23,19 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe;
 
+use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
+
 final class ItemStackInfo{
 
 	public function __construct(
 		private ?int $requestId,
-		private int $stackId
+		private int $stackId,
+		private ItemStack $item
 	){}
 
 	public function getRequestId() : ?int{ return $this->requestId; }
 
 	public function getStackId() : int{ return $this->stackId; }
+
+	public function getItem() : ItemStack{ return $this->item; }
 }

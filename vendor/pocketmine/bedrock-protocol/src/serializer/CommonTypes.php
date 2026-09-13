@@ -284,6 +284,39 @@ final class CommonTypes{
 		self::putItemStackFooter($out, $itemStack);
 	}
 
+	/**
+	 * Used by DeprecatedCraftingResultsEntry (the "results" list inside the deprecated
+	 * CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING item stack request action). Like item stack request actions
+	 * themselves, each descriptor is prefixed by both an outer VarInt type and a redundant inner-type byte that must
+	 * match it - confirmed against a real captured packet and against axolotl-pm/BedrockProtocol's independently
+	 * verified implementation.
+	 *
+	 * @throws PacketDecodeException
+	 * @throws DataDecodeException
+	 */
+	public static function readItemDescriptorNormal(ByteBufferReader $in) : NameItemDescriptor|TagItemDescriptor|MolangItemDescriptor|null{
+		$outerType = VarInt::readUnsignedInt($in);
+		$innerType = Byte::readUnsigned($in);
+		if($outerType !== $innerType){
+			throw new PacketDecodeException("Item descriptor type mismatch: outer type $outerType, inner type $innerType");
+		}
+
+		return match($outerType){
+			ItemDescriptorType::EMPTY => null,
+			ItemDescriptorType::NAME => NameItemDescriptor::read($in),
+			ItemDescriptorType::MOLANG => MolangItemDescriptor::read($in),
+			ItemDescriptorType::TAG => TagItemDescriptor::read($in),
+			default => throw new PacketDecodeException("Unknown item descriptor type $outerType"),
+		};
+	}
+
+	public static function writeItemDescriptorNormal(ByteBufferWriter $out, NameItemDescriptor|TagItemDescriptor|MolangItemDescriptor|null $descriptor) : void{
+		$type = $descriptor?->getTypeId() ?? ItemDescriptorType::EMPTY;
+		VarInt::writeUnsignedInt($out, $type);
+		Byte::writeUnsigned($out, $type);
+		$descriptor?->write($out);
+	}
+
 	/** @throws DataDecodeException */
 	public static function getItemStackWrapper(ByteBufferReader $in) : ItemStackWrapper{
 		$id = LE::readSignedShort($in);
@@ -714,7 +747,7 @@ final class CommonTypes{
 	 * @throws DataDecodeException
 	 */
 	public static function readItemStackNetIdVariant(ByteBufferReader $in) : int{
-		return VarInt::readSignedInt($in);
+		return LE::readSignedInt($in);
 	}
 
 	/**
@@ -723,7 +756,7 @@ final class CommonTypes{
 	 * as-yet unacknowledged request from the client.
 	 */
 	public static function writeItemStackNetIdVariant(ByteBufferWriter $out, int $id) : void{
-		VarInt::writeSignedInt($out, $id);
+		LE::writeSignedInt($out, $id);
 	}
 
 	/** @throws DataDecodeException */
