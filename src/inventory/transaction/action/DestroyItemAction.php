@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\inventory\transaction\action;
 
+use pocketmine\block\inventory\BeaconInventory;
 use pocketmine\inventory\transaction\TransactionValidationException;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
@@ -31,6 +32,9 @@ use pocketmine\player\Player;
 /**
  * This action type shows up when a creative player puts an item into the creative inventory menu to destroy it.
  * The output is the item destroyed. You can think of this action type like setting an item into /dev/null
+ *
+ * It also shows up when a survival player pays a beacon (the payment item is "destroyed" as it's consumed) - that
+ * case is exempted from the finite-resources check below via the currently open BeaconInventory.
  */
 class DestroyItemAction extends InventoryAction{
 
@@ -39,6 +43,9 @@ class DestroyItemAction extends InventoryAction{
 	}
 
 	public function validate(Player $source) : void{
+		if($source->getCurrentWindow() instanceof BeaconInventory){
+			return;
+		}
 		if($source->hasFiniteResources()){
 			throw new TransactionValidationException("Player has finite resources, cannot destroy items");
 		}
