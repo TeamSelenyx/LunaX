@@ -41,14 +41,12 @@ class TransferServerCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_transferserver_description(),
 			KnownTranslationFactory::pocketmine_command_transferserver_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("address", AvailableCommandsPacket::ARG_TYPE_STRING),
-					CommandParameter::standard("port", AvailableCommandsPacket::ARG_TYPE_INT)
-				]
+				CommandParameter::standard("address", AvailableCommandsPacket::ARG_TYPE_STRING),
+				CommandParameter::standard("port", AvailableCommandsPacket::ARG_TYPE_INT)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_TRANSFERSERVER);
 	}
 

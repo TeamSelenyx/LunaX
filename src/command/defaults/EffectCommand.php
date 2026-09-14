@@ -45,21 +45,19 @@ class EffectCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_effect_description(),
 			KnownTranslationFactory::commands_effect_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("effect", new CommandHardEnum("Effect", StringToEffectParser::getInstance()->getKnownAliases()), 0),
-					CommandParameter::standard("seconds", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
-					CommandParameter::standard("amplifier", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
-					CommandParameter::enum("hideParticles", new CommandHardEnum("Boolean", ["false, true"]), 0, true)
-				],
-				[
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("clear", new CommandHardEnum("Clear", ["clear"]), 0)
-				]
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("effect", new CommandHardEnum("Effect", StringToEffectParser::getInstance()->getKnownAliases()), 0),
+				CommandParameter::standard("seconds", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
+				CommandParameter::standard("amplifier", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
+				CommandParameter::enum("hideParticles", new CommandHardEnum("Boolean", ["false, true"]), 0, true)
+			],
+			[
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("clear", new CommandHardEnum("Clear", ["clear"]), 0)
 			]
-		);
+		]);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_EFFECT_SELF,
 			DefaultPermissionNames::COMMAND_EFFECT_OTHER

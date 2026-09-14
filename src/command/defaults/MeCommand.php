@@ -42,13 +42,11 @@ class MeCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_me_description(),
 			KnownTranslationFactory::commands_me_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("message", AvailableCommandsPacket::ARG_TYPE_STRING)
-				]
+				CommandParameter::standard("message", AvailableCommandsPacket::ARG_TYPE_STRING)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_ME);
 	}
 

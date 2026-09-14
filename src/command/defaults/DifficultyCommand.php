@@ -43,16 +43,14 @@ class DifficultyCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_difficulty_description(),
 			KnownTranslationFactory::commands_difficulty_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::enum("difficulty", new CommandHardEnum("Difficulty", ["e", "easy", "h", "hard", "n", "normal", "p", "peaceful"]), 0)
-				],
-				[
-					CommandParameter::standard("difficulty", AvailableCommandsPacket::ARG_TYPE_INT)
-				]
+				CommandParameter::enum("difficulty", new CommandHardEnum("Difficulty", ["e", "easy", "h", "hard", "n", "normal", "p", "peaceful"]), 0)
+			],
+			[
+				CommandParameter::standard("difficulty", AvailableCommandsPacket::ARG_TYPE_INT)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_DIFFICULTY);
 	}
 

@@ -42,13 +42,11 @@ class KillCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_kill_usage(),
 			["suicide"]
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET)
-				]
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET)
 			]
-		);
+		]);
 		$this->setPermissions([DefaultPermissionNames::COMMAND_KILL_SELF, DefaultPermissionNames::COMMAND_KILL_OTHER]);
 	}
 

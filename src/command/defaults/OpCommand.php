@@ -43,13 +43,11 @@ class OpCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_op_description(),
 			KnownTranslationFactory::commands_op_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET)
-				]
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_OP_GIVE);
 	}
 

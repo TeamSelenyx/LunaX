@@ -62,22 +62,20 @@ class TimingsCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_timings_description(),
 			KnownTranslationFactory::pocketmine_command_timings_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::enum("on", new CommandHardEnum("TimingsOn", ["on"]), 0, false)
-				],
-				[
-					CommandParameter::enum("off", new CommandHardEnum("TimingsOff", ["off"]), 0, false)
-				],
-				[
-					CommandParameter::enum("reset", new CommandHardEnum("TimingsReset", ["reset"]), 0, false)
-				],
-				[
-					CommandParameter::enum("paste", new CommandHardEnum("TimingsPaste", ["merged", "report", "paste"]), 0, false)
-				]
+				CommandParameter::enum("on", new CommandHardEnum("TimingsOn", ["on"]), 0, false)
+			],
+			[
+				CommandParameter::enum("off", new CommandHardEnum("TimingsOff", ["off"]), 0, false)
+			],
+			[
+				CommandParameter::enum("reset", new CommandHardEnum("TimingsReset", ["reset"]), 0, false)
+			],
+			[
+				CommandParameter::enum("paste", new CommandHardEnum("TimingsPaste", ["merged", "report", "paste"]), 0, false)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_TIMINGS);
 	}
 

@@ -50,16 +50,14 @@ class GiveCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_give_description(),
 			KnownTranslationFactory::pocketmine_command_give_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("itemName", new CommandHardEnum("Item", []), 0),
-					CommandParameter::standard("amount", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
-					CommandParameter::standard("components", AvailableCommandsPacket::ARG_TYPE_JSON, 0, true)
-				]
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("itemName", new CommandHardEnum("Item", []), 0),
+				CommandParameter::standard("amount", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
+				CommandParameter::standard("components", AvailableCommandsPacket::ARG_TYPE_JSON, 0, true)
 			]
-		);
+		]);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_GIVE_SELF,
 			DefaultPermissionNames::COMMAND_GIVE_OTHER

@@ -46,13 +46,11 @@ class BanListCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_banlist_description(),
 			KnownTranslationFactory::commands_banlist_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::enum("list", new CommandHardEnum("List", ["ips", "players"]), 0, true)
-				]
+				CommandParameter::enum("list", new CommandHardEnum("List", ["ips", "players"]), 0, true)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_BAN_LIST);
 	}
 

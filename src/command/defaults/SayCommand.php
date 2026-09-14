@@ -43,13 +43,11 @@ class SayCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_say_description(),
 			KnownTranslationFactory::commands_say_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("message", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
-				]
+				CommandParameter::standard("message", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_SAY);
 	}
 

@@ -45,14 +45,12 @@ class KickCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_kick_description(),
 			KnownTranslationFactory::commands_kick_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::standard("reason", AvailableCommandsPacket::ARG_TYPE_STRING)
-				]
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::standard("reason", AvailableCommandsPacket::ARG_TYPE_STRING)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_KICK);
 	}
 

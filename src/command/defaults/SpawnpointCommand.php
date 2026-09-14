@@ -44,14 +44,12 @@ class SpawnpointCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_spawnpoint_description(),
 			KnownTranslationFactory::commands_spawnpoint_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true),
-					CommandParameter::standard("spawnPos", AvailableCommandsPacket::ARG_TYPE_POSITION, 0, true)
-				]
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true),
+				CommandParameter::standard("spawnPos", AvailableCommandsPacket::ARG_TYPE_POSITION, 0, true)
 			]
-		);
+		]);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_SPAWNPOINT_SELF,
 			DefaultPermissionNames::COMMAND_SPAWNPOINT_OTHER

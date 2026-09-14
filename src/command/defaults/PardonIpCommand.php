@@ -43,12 +43,11 @@ class PardonIpCommand extends VanillaCommand{
 			["unban-ip"]
 		);
 		$this->setOverloads(
+		[
 			[
-				[
-					CommandParameter::standard("address", AvailableCommandsPacket::ARG_TYPE_STRING)
-				]
+				CommandParameter::standard("address", AvailableCommandsPacket::ARG_TYPE_STRING)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_UNBAN_IP);
 	}
 

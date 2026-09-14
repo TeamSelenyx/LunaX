@@ -44,13 +44,11 @@ class SetWorldSpawnCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_setworldspawn_description(),
 			KnownTranslationFactory::commands_setworldspawn_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("spawnPos", AvailableCommandsPacket::ARG_TYPE_POSITION, 0, true)
-				]
+				CommandParameter::standard("spawnPos", AvailableCommandsPacket::ARG_TYPE_POSITION, 0, true)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_SETWORLDSPAWN);
 	}
 

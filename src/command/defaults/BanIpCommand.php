@@ -44,18 +44,16 @@ class BanIpCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_ban_ip_description(),
 			KnownTranslationFactory::commands_banip_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("address", AvailableCommandsPacket::ARG_TYPE_STRING),
-					CommandParameter::standard("reason", AvailableCommandsPacket::ARG_TYPE_MESSAGE, 0, true)
-				],
-				[
-					CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::standard("reason", AvailableCommandsPacket::ARG_TYPE_MESSAGE, 0, true)
-				]
+				CommandParameter::standard("address", AvailableCommandsPacket::ARG_TYPE_STRING),
+				CommandParameter::standard("reason", AvailableCommandsPacket::ARG_TYPE_MESSAGE, 0, true)
+			],
+			[
+				CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::standard("reason", AvailableCommandsPacket::ARG_TYPE_MESSAGE, 0, true)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_BAN_IP);
 	}
 

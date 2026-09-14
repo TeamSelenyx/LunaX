@@ -43,13 +43,11 @@ class DeopCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_deop_description(),
 			KnownTranslationFactory::commands_deop_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET)
-				]
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_OP_TAKE);
 	}
 

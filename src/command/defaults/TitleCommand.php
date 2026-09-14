@@ -42,40 +42,38 @@ class TitleCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_title_description(),
 			KnownTranslationFactory::commands_title_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("clear", new CommandHardEnum("Clear", ["clear"]), 0, false)
-				],
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("reset", new CommandHardEnum("Reset", ["reset"]), 0, false)
-				],
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("title", new CommandHardEnum("Title", ["title"]), 0, false),
-					CommandParameter::standard("titleText", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
-				],
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("subtitle", new CommandHardEnum("SubTitle", ["subtitle"]), 0, false),
-					CommandParameter::standard("titleText", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
-				],
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("actionbar", new CommandHardEnum("ActionBar", ["actionbar"]), 0, false),
-					CommandParameter::standard("titleText", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
-				],
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("times", new CommandHardEnum("Times", ["times"]), 0, false),
-					CommandParameter::standard("fadeIn", AvailableCommandsPacket::ARG_TYPE_INT),
-					CommandParameter::standard("stay", AvailableCommandsPacket::ARG_TYPE_INT),
-					CommandParameter::standard("fadeOut", AvailableCommandsPacket::ARG_TYPE_INT)
-				]
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("clear", new CommandHardEnum("Clear", ["clear"]), 0, false)
+			],
+			[
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("reset", new CommandHardEnum("Reset", ["reset"]), 0, false)
+			],
+			[
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("title", new CommandHardEnum("Title", ["title"]), 0, false),
+				CommandParameter::standard("titleText", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
+			],
+			[
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("subtitle", new CommandHardEnum("SubTitle", ["subtitle"]), 0, false),
+				CommandParameter::standard("titleText", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
+			],
+			[
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("actionbar", new CommandHardEnum("ActionBar", ["actionbar"]), 0, false),
+				CommandParameter::standard("titleText", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
+			],
+			[
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("times", new CommandHardEnum("Times", ["times"]), 0, false),
+				CommandParameter::standard("fadeIn", AvailableCommandsPacket::ARG_TYPE_INT),
+				CommandParameter::standard("stay", AvailableCommandsPacket::ARG_TYPE_INT),
+				CommandParameter::standard("fadeOut", AvailableCommandsPacket::ARG_TYPE_INT)
 			]
-		);
+		]);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_TITLE_SELF,
 			DefaultPermissionNames::COMMAND_TITLE_OTHER

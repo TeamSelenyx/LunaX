@@ -43,20 +43,18 @@ class EnchantCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_enchant_description(),
 			KnownTranslationFactory::commands_enchant_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::standard("enchantmentId", AvailableCommandsPacket::ARG_TYPE_INT),
-					CommandParameter::standard("level", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
-				],
-				[
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::enum("enchantmentName", new CommandHardEnum("Enchant", []), 0),
-					CommandParameter::standard("level", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
-				]
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::standard("enchantmentId", AvailableCommandsPacket::ARG_TYPE_INT),
+				CommandParameter::standard("level", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
+			],
+			[
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("enchantmentName", new CommandHardEnum("Enchant", []), 0),
+				CommandParameter::standard("level", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
 			]
-		);
+		]);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_ENCHANT_SELF,
 			DefaultPermissionNames::COMMAND_ENCHANT_OTHER

@@ -42,18 +42,16 @@ class GamemodeCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_gamemode_description(),
 			KnownTranslationFactory::commands_gamemode_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::enum("gameMode", new CommandHardEnum("GameMode", ["a", "adventure", "c", "creative", "s", "spectator", "survival"]), 0),
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true)
-				],
-				[
-					CommandParameter::standard("gameMode", AvailableCommandsPacket::ARG_TYPE_INT),
-					CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true)
-				]
+				CommandParameter::enum("gameMode", new CommandHardEnum("GameMode", ["a", "adventure", "c", "creative", "s", "spectator", "survival"]), 0),
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true)
+			],
+			[
+				CommandParameter::standard("gameMode", AvailableCommandsPacket::ARG_TYPE_INT),
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true)
 			]
-		);
+		]);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_GAMEMODE_SELF,
 			DefaultPermissionNames::COMMAND_GAMEMODE_OTHER

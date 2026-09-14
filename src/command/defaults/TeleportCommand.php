@@ -48,35 +48,33 @@ class TeleportCommand extends VanillaCommand{
 			KnownTranslationFactory::commands_tp_usage(),
 			["teleport"]
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_TARGET)
-				],
-				[
-					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION)
-				],
-				[
-					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION),
-					CommandParameter::standard("yaw", AvailableCommandsPacket::ARG_TYPE_FLOAT),
-					CommandParameter::standard("pitch", AvailableCommandsPacket::ARG_TYPE_FLOAT)
-				],
-				[
-					CommandParameter::standard("victim", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_TARGET)
-				],
-				[
-					CommandParameter::standard("victim", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION)
-				],
-				[
-					CommandParameter::standard("victim", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION),
-					CommandParameter::standard("yaw", AvailableCommandsPacket::ARG_TYPE_FLOAT),
-					CommandParameter::standard("pitch", AvailableCommandsPacket::ARG_TYPE_FLOAT)
-				]
+				CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_TARGET)
+			],
+			[
+				CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION)
+			],
+			[
+				CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION),
+				CommandParameter::standard("yaw", AvailableCommandsPacket::ARG_TYPE_FLOAT),
+				CommandParameter::standard("pitch", AvailableCommandsPacket::ARG_TYPE_FLOAT)
+			],
+			[
+				CommandParameter::standard("victim", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_TARGET)
+			],
+			[
+				CommandParameter::standard("victim", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION)
+			],
+			[
+				CommandParameter::standard("victim", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::standard("destination", AvailableCommandsPacket::ARG_TYPE_POSITION),
+				CommandParameter::standard("yaw", AvailableCommandsPacket::ARG_TYPE_FLOAT),
+				CommandParameter::standard("pitch", AvailableCommandsPacket::ARG_TYPE_FLOAT)
 			]
-		);
+		]);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_TELEPORT_SELF,
 			DefaultPermissionNames::COMMAND_TELEPORT_OTHER

@@ -49,14 +49,12 @@ class VersionCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_version_usage(),
 			["ver", "about"]
 		);
-		$this->setOverloads(
+		$this->setOverloads([
+			[],
 			[
-				[],
-				[
-					CommandParameter::standard("plugin", AvailableCommandsPacket::ARG_TYPE_STRING)
-				]
+				CommandParameter::standard("plugin", AvailableCommandsPacket::ARG_TYPE_STRING)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_VERSION);
 	}
 

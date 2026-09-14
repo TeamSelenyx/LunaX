@@ -48,15 +48,13 @@ class ClearCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_clear_description(),
 			KnownTranslationFactory::pocketmine_command_clear_usage()
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true),
-					CommandParameter::enum("item", new CommandHardEnum("Item", []), 0, true),
-					CommandParameter::standard("maxCount", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
-				]
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET, 0, true),
+				CommandParameter::enum("item", new CommandHardEnum("Item", []), 0, true),
+				CommandParameter::standard("maxCount", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
 			]
-		);
+		]);
 		$this->setPermissions([DefaultPermissionNames::COMMAND_CLEAR_SELF, DefaultPermissionNames::COMMAND_CLEAR_OTHER]);
 	}
 

@@ -45,14 +45,12 @@ class TellCommand extends VanillaCommand{
 			KnownTranslationFactory::commands_message_usage(),
 			["w", "msg"]
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
-					CommandParameter::standard("message", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
-				]
+				CommandParameter::standard("target", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::standard("message", AvailableCommandsPacket::ARG_TYPE_MESSAGE)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_TELL);
 	}
 

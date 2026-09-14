@@ -41,13 +41,11 @@ class PardonCommand extends VanillaCommand{
 			KnownTranslationFactory::commands_unban_usage(),
 			["unban"]
 		);
-		$this->setOverloads(
+		$this->setOverloads([
 			[
-				[
-					CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_TARGET)
-				]
+				CommandParameter::standard("name", AvailableCommandsPacket::ARG_TYPE_TARGET)
 			]
-		);
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_UNBAN_PLAYER);
 	}
 
