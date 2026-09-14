@@ -29,6 +29,8 @@ namespace pocketmine\command;
 use pocketmine\command\utils\CommandException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\lang\Translatable;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\PermissionManager;
 use pocketmine\Server;
 use pocketmine\utils\BroadcastLoggerForwarder;
@@ -64,6 +66,9 @@ abstract class Command{
 
 	protected Translatable|string $usageMessage;
 
+	/** @var CommandParameter[] */
+	private array $overloads = [];
+
 	/** @var string[] */
 	private array $permission = [];
 	private ?string $permissionMessage = null;
@@ -72,12 +77,13 @@ abstract class Command{
 	 * @param string[] $aliases
 	 * @phpstan-param list<string> $aliases
 	 */
-	public function __construct(string $name, Translatable|string $description = "", Translatable|string|null $usageMessage = null, array $aliases = []){
+	public function __construct(string $name, Translatable|string $description = "", Translatable|string|null $usageMessage = null, array $aliases = [], array $overloads = []){
 		$this->name = $name;
 		$this->setLabel($name);
 		$this->setDescription($description);
 		$this->usageMessage = $usageMessage ?? ("/" . $name);
 		$this->setAliases($aliases);
+		$this->overloads = (!empty($overloads)) ? $overloads : [[CommandParameter::standard("args", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, true)]];
 	}
 
 	/**
@@ -211,6 +217,14 @@ abstract class Command{
 	}
 
 	/**
+	 * @param int $index
+	 * @return CommandParameter[]|null
+	 */
+	public function getOverloads() : array{
+		return $this->overloads;
+	}
+
+	/**
 	 * @param string[] $aliases
 	 * @phpstan-param list<string> $aliases
 	 */
@@ -232,6 +246,10 @@ abstract class Command{
 
 	public function setUsage(Translatable|string $usage) : void{
 		$this->usageMessage = $usage;
+	}
+
+	public function setOverloads(array $parameters = []) : void{
+		$this->overloads = array_values($parameters);
 	}
 
 	public static function broadcastCommandMessage(CommandSender $source, Translatable|string $message, bool $sendToSource = true) : void{

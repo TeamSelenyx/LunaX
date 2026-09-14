@@ -37,6 +37,7 @@ class SaveCommand extends VanillaCommand{
 			"save-all",
 			KnownTranslationFactory::pocketmine_command_save_description()
 		);
+		$this->setOverloads();
 		$this->setPermission(DefaultPermissionNames::COMMAND_SAVE_PERFORM);
 	}
 

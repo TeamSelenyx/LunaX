@@ -27,6 +27,9 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\ServerProperties;
 use pocketmine\world\World;
@@ -40,6 +43,14 @@ class DifficultyCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_difficulty_description(),
 			KnownTranslationFactory::commands_difficulty_usage()
 		);
+		$this->setOverloads([
+			[
+				CommandParameter::enum("difficulty", new CommandHardEnum("Difficulty", ["e", "easy", "h", "hard", "n", "normal", "p", "peaceful"]), 0)
+			],
+			[
+				CommandParameter::standard("difficulty", AvailableCommandsPacket::ARG_TYPE_INT)
+			]
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_DIFFICULTY);
 	}
 

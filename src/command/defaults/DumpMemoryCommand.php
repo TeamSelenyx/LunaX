@@ -26,6 +26,8 @@ namespace pocketmine\command\defaults;
 use pocketmine\command\CommandSender;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\permission\DefaultPermissionNames;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use Symfony\Component\Filesystem\Path;
 use function date;
 
@@ -37,6 +39,11 @@ class DumpMemoryCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_dumpmemory_description(),
 			"/dumpmemory [path]"
 		);
+		$this->setOverloads([
+			[
+				CommandParameter::standard("path", AvailableCommandsPacket::ARG_TYPE_FILEPATH)
+			]
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_DUMPMEMORY);
 	}
 

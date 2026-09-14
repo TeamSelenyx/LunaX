@@ -33,6 +33,9 @@ use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\nbt\JsonNbtParser;
 use pocketmine\nbt\NbtDataException;
 use pocketmine\nbt\NbtException;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\utils\TextFormat;
 use function array_slice;
@@ -47,6 +50,14 @@ class GiveCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_give_description(),
 			KnownTranslationFactory::pocketmine_command_give_usage()
 		);
+		$this->setOverloads([
+			[
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("itemName", new CommandHardEnum("Item", []), 0),
+				CommandParameter::standard("amount", AvailableCommandsPacket::ARG_TYPE_INT, 0, true),
+				CommandParameter::standard("components", AvailableCommandsPacket::ARG_TYPE_JSON, 0, true)
+			]
+		]);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_GIVE_SELF,
 			DefaultPermissionNames::COMMAND_GIVE_OTHER
