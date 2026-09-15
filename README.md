@@ -1,59 +1,29 @@
-# End of support announcement
-
-Hello all,
-
-As some of you may know, @driesboy recently decided to leave Minecraft behind as he pursues other interests. While I wish him the best, unfortunately, this now means that no one is left on the team willing to do updates for new Minecraft versions.
-
-We've assembled some [documentation](https://doc.pmmp.io/en/rtfd/developers/internals-docs/updating-minecraft-protocol.html) on the update process to help anyone who wants to make a fork to continue updating PM themselves. However, no further updates will be provided by the PMMP team.
-
-I want to say a huge thank you for the outstanding support of the Lifeboat Network for supporting the development of the project financially these last few years.
-While they could've hired us to go closed-source and kept everything for themselves, they instead agreed to let us share the work we were doing with the public community with no strings attached, and didn't even ask for any recognition in return. Their generosity has allowed many servers to flourish over the last few years.
-
-A huge thank you is also owed to the members of the PMMP team, past and present, including developers, community moderators, and code reviewers. It has taken a huge amount of unpaid voluntary work by many people to keep this project going for so long, work that has often been taken for granted by the community.
-
-I would also like to thank those who have supported me on Patreon, however small the amount. You guys have been truly generous, by paying to support a project that you didn't have to, for almost nothing in return except a fancy Discord role.
-
-Finally, thank you to you, the community, for using PocketMine-MP and making cool things with it, reporting bugs, making pull requests, and trying to make the world a better place.
-
-Peace out,
-Dylan / dktapps / the black cat
-
----
-
+<div align="center">
+  	<img src="https://readme-typing-svg.demolab.com?font=Black+Ops+One&size=70&duration=1&pause=1000&color=FFFFFF&center=true&vCenter=true&width=800&height=120&lines=Luna+X" alt="Title" />
+</div>
 <p align="center">
-	<a href="https://pmmp.io">
-		<!--[if IE]>
-			<img src="https://github.com/pmmp/PocketMine-MP/blob/stable/.github/readme/pocketmine.png" alt="The PocketMine-MP logo" title="PocketMine" loading="eager" />
-		<![endif]-->
-		<picture>
-			<source srcset="https://raw.githubusercontent.com/pmmp/PocketMine-MP/stable/.github/readme/pocketmine-dark-rgb.gif" media="(prefers-color-scheme: dark)">
-			<img src="https://raw.githubusercontent.com/pmmp/PocketMine-MP/stable/.github/readme/pocketmine-rgb.gif" loading="eager" />
-		</picture>
-	</a><br>
 	<b>A highly customisable, open source server software for Minecraft: Bedrock Edition written in PHP</b>
 </p>
 
 <p align="center">
-	<a href="https://github.com/pmmp/PocketMine-MP/actions/workflows/main.yml"><img src="https://github.com/pmmp/PocketMine-MP/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
-	<a href="https://github.com/pmmp/PocketMine-MP/releases/latest"><img alt="GitHub release (latest SemVer)" src="https://img.shields.io/github/v/release/pmmp/PocketMine-MP?label=release&sort=semver"></a>
-	<a href="https://discord.gg/bmSAZBG"><img src="https://img.shields.io/discord/373199722573201408?label=discord&color=7289DA&logo=discord" alt="Discord" /></a>
-	<br>
-	<a href="https://github.com/pmmp/PocketMine-MP/releases"><img alt="GitHub all releases" src="https://img.shields.io/github/downloads/pmmp/PocketMine-MP/total?label=downloads%40total"></a>
-	<a href="https://github.com/pmmp/PocketMine-MP/releases/latest"><img alt="GitHub release (latest by SemVer)" src="https://img.shields.io/github/downloads/pmmp/PocketMine-MP/latest/total?sort=semver"></a>
+	<a href="https://github.com/TeamSelenyx/LunaX/releases/latest"><img alt="GitHub release (latest SemVer)" src="https://img.shields.io/github/v/release/TeamSelenyx/LunaX?label=release&sort=semver"></a>
+	<a href="https://github.com/TeamSelenyx/LunaX/releases"><img alt="GitHub all releases" src="https://img.shields.io/github/downloads/TeamSelenyx/LunaX/total?label=downloads%40total"></a>
+	<a href="https://github.com/TeamSelenyx/LunaX/releases/latest"><img alt="GitHub release (latest by SemVer)" src="https://img.shields.io/github/downloads/TeamSelenyx/LunaX/latest/total?sort=semver"></a>
 </p>
 
-## What is this?
-PocketMine-MP is a highly customisable server software for Minecraft: Bedrock Edition, built from scratch in PHP, with over 10 years of history.
+---
 
-If you're looking to create a Minecraft: Bedrock server with **custom functionality**, look no further.
+## :gear: Luna X
+2026년 지원이 종료된, <b>PocketMine-MP</b>을 업데이트 하고, 새로운 기능을 추가한 구동기입니다.   
+빠르진 않지만 꾸준하게 업데이트를 진행 중이고, Command Overload, Persona 스킨등등 기존 PocketMine-MP에서 볼 수 없던 기능들도 개발하고 있습니다.
 
-- 🧩 **Powerful plugin API** - extend and customise gameplay as you see fit
-- 🗺️ **Rich ecosystem** and **large developer community** - find plugins easily and learn to develop your own
-- 🌐 **Multi-world support** - offer a more varied game experience to players without transferring them to other server nodes
-- 🏎️ **Performance** - get 100+ players onto one server (depending on hardware and plugins)
-- ⤴️ **Continuously updated** - new Minecraft versions are usually supported within days
+## :rocket: Luna X 특화 기능
+- [ ] Command Overload
+  <p>명령어 자동완성 및 사용 방법 표시</p>
+- [ ] Persona 스킨
+  <p>사용자가 커스텀한 스킨을 서버에서 사용</p>
 
-## :x: PocketMine-MP is NOT a vanilla Minecraft server software.
+## :x: Luna X는 공식 Minecraft 서버 소프트웨어가 아닙니다
 **It is poorly suited to hosting vanilla survival servers.**
 It doesn't have many features from the vanilla game, such as vanilla world generation, redstone, mob AI, and various other things.
 
@@ -61,46 +31,7 @@ If you just want to play **vanilla survival multiplayer**, consider using the [o
 
 If that's not an option for you, you may be able to add some of PocketMine-MP's missing features using plugins from [Poggit](https://poggit.pmmp.io/plugins), or write plugins to implement them yourself.
 
-## Getting Started
-- [Documentation](http://pmmp.readthedocs.org/)
-- [Installation instructions](https://pmmp.readthedocs.io/en/rtfd/installation.html)
-- [Docker image](https://github.com/pmmp/PocketMine-MP/pkgs/container/pocketmine-mp)
-- [Plugin repository](https://poggit.pmmp.io/plugins)
+## 라이센스 정보
+해당 프로젝트는 LGPL-3.0로 배포되며, [LICENSE](/LICENSE) 해당 파일을 통해 자세하게 볼 수 있습니다.
 
-## Community & Support
-Join our [Discord](https://discord.gg/bmSAZBG) server to chat with other users and developers.
-
-You can also post questions on [StackOverflow](https://stackoverflow.com/tags/pocketmine) under the tag `pocketmine`.
-
-## Developing Plugins
-If you want to write your own plugins, the following resources may be useful.
-Don't forget you can always ask our community if you need help.
-
- * [Developer documentation](https://devdoc.pmmp.io) - General documentation for PocketMine-MP plugin developers
- * [Latest release API documentation](https://apidoc.pmmp.io) - Doxygen API documentation generated for each release
- * [Latest bleeding-edge API documentation](https://apidoc-dev.pmmp.io) - Doxygen API documentation generated weekly from `major-next` branch
- * [DevTools](https://github.com/pmmp/DevTools/) - Development tools plugin for creating plugins
- * [ExamplePlugin](https://github.com/pmmp/ExamplePlugin/) - Example plugin demonstrating some basic API features
-
-## Contributing to PocketMine-MP
-PocketMine-MP accepts community contributions! The following resources will be useful if you want to contribute to PocketMine-MP.
- * [Building and running PocketMine-MP from source](BUILDING.md)
- * [Contributing Guidelines](CONTRIBUTING.md)
-
-New here? Check out [issues with the "Easy task" label](https://github.com/pmmp/PocketMine-MP/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22Easy%20task%22) for things you could work to familiarise yourself with the codebase.
-
-## Donate
-PocketMine-MP is free, but it requires a lot of time and effort from unpaid volunteers to develop. Donations enable us to keep delivering support for new versions and adding features your players love.
-
-You can support development using the following methods:
-
-- [Patreon](https://www.patreon.com/pocketminemp)
-- Bitcoin (BTC): `bc1q2v5ngyf8ugyd55kqa9ep35g2rv342ueqm6ks33`
-- Stellar Lumens (XLM): `GAAC5WZ33HCTE3BFJFZJXONMEIBNHFLBXM2HJVAZHXXPYA3HP5XPPS7T`
-
-Thanks for your support!
-
-## Licensing information
-This project is licensed under LGPL-3.0. Please see the [LICENSE](/LICENSE) file for details.
-
-pmmp/PocketMine are not affiliated with Mojang. All brands and trademarks belong to their respective owners. PocketMine-MP is not a Mojang-approved software, nor is it associated with Mojang.
+Luna X는 Mojang과 관련이 없습니다. 모든 브랜드 및 상표는 해당 소유자의 자산입니다. Luna X는 Mojang의 승인을 받은 소프트웨어가 아니며, Mojang과도 관련이 없습니다.
