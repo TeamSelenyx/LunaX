@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "63f9e6baef93b222776c53656f8be478",
+    "content-hash": "771f42147fae41185d897552d412c6a8",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -254,16 +254,16 @@
         },
         {
             "name": "pocketmine/bedrock-protocol",
-            "version": "dev-codex/bedrock-1.26.45-protocol-updates",
+            "version": "59.1.0+bedrock-1.26.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TeamSelenyx/BedrockProtocol.git",
-                "reference": "0bf49137e16566b83022c5d8b15a8933bb597c1a"
+                "reference": "87e5b9d470b0cba30d896501efe054e81f0a24cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TeamSelenyx/BedrockProtocol/zipball/0bf49137e16566b83022c5d8b15a8933bb597c1a",
-                "reference": "0bf49137e16566b83022c5d8b15a8933bb597c1a",
+                "url": "https://api.github.com/repos/TeamSelenyx/BedrockProtocol/zipball/87e5b9d470b0cba30d896501efe054e81f0a24cd",
+                "reference": "87e5b9d470b0cba30d896501efe054e81f0a24cd",
                 "shasum": ""
             },
             "require": {
@@ -303,9 +303,9 @@
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
-                "source": "https://github.com/TeamSelenyx/BedrockProtocol/tree/codex/bedrock-1.26.45-protocol-updates"
+                "source": "https://github.com/TeamSelenyx/BedrockProtocol/tree/59.1.0+bedrock-1.26.45"
             },
-            "time": "2026-09-13T13:17:57+00:00"
+            "time": "2026-09-06T14:44:36+00:00"
         },
         {
             "name": "pocketmine/binaryutils",
@@ -2770,18 +2770,11 @@
             "version": "dev-codex/bedrock-1.26.45-data-updates",
             "alias": "6.8.0",
             "alias_normalized": "6.8.0.0"
-        },
-        {
-            "package": "pocketmine/bedrock-protocol",
-            "version": "dev-codex/bedrock-1.26.45-protocol-updates",
-            "alias": "61.0.0",
-            "alias_normalized": "61.0.0.0"
         }
     ],
     "minimum-stability": "stable",
     "stability-flags": {
-        "pocketmine/bedrock-data": 20,
-        "pocketmine/bedrock-protocol": 20
+        "pocketmine/bedrock-data": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

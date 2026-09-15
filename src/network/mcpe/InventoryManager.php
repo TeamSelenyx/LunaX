@@ -37,17 +37,13 @@ use pocketmine\block\inventory\SmithingTableInventory;
 use pocketmine\block\inventory\StonecutterInventory;
 use pocketmine\crafting\FurnaceType;
 use pocketmine\data\bedrock\EnchantmentIdMap;
-use pocketmine\inventory\CallbackInventoryListener;
 use pocketmine\inventory\Inventory;
-use pocketmine\inventory\SimpleInventory;
 use pocketmine\inventory\transaction\action\SlotChangeAction;
 use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\item\enchantment\EnchantingOption;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\Item;
-use pocketmine\item\VanillaItems;
 use pocketmine\network\mcpe\cache\CreativeInventoryCache;
-use pocketmine\network\mcpe\handler\ItemStackContainerIdTranslator;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
@@ -139,39 +135,7 @@ class InventoryManager{
 		$this->addComplex(UIInventorySlotOffset::CURSOR, $this->player->getCursorInventory());
 		$this->addComplex(UIInventorySlotOffset::CRAFTING2X2_INPUT, $this->player->getCraftingGrid());
 
-		//Newer clients send a PlaceStackRequestAction sourced from RECIPE_FOOD_CONTAINER/RECIPE_BLOCKS_CONTAINER/
-		//RECIPE_FURNACE_ITEMS_CONTAINER (the recipe book merged into survival inventory/chest screens) even for
-		//ordinary item moves unrelated to crafting - as if the client expects the recipe preview slot to already
-		//hold an item it can move out. We don't know the real semantics (or the true destination of that Place),
-		//but leaving the slot empty makes that action fail every time, and it turns out the client hard-disconnects
-		//on ANY failure of this specific action (confirmed live - changing the failure's exception type/message
-		//made no difference). So this scratch inventory's slot 0 is kept permanently non-empty with an unmistakable,
-		//clearly-labelled placeholder item: if the Place action's real destination ever turns out to be a genuine
-		//player-visible slot instead of another slot inside this same virtual container, this label is what lets it
-		//be spotted and removed immediately rather than looking like a legitimate item.
-		$recipePreviewInventory = new SimpleInventory(64);
-		$recipePreviewInventory->setItem(0, self::createRecipePreviewPlaceholderItem());
-		$recipePreviewInventory->getListeners()->add(new CallbackInventoryListener(
-			function(Inventory $inventory, int $slot, Item $oldItem) : void{
-				if($slot === 0 && $inventory->getItem(0)->isNull()){
-					$inventory->setItem(0, self::createRecipePreviewPlaceholderItem());
-				}
-			},
-			null
-		));
-		$this->add(ItemStackContainerIdTranslator::RECIPE_PREVIEW_WINDOW_ID, $recipePreviewInventory);
-
 		$this->player->getInventory()->getHeldItemIndexChangeListeners()->add($this->syncSelectedHotbarSlot(...));
-	}
-
-	/** See the comment above where this is used, in the constructor. */
-	private static function createRecipePreviewPlaceholderItem() : Item{
-		return VanillaItems::STICK()
-			->setCustomName("§c[서버 내부용 - 이 아이템이 보이면 관리자에게 알려주세요]")
-			->setLore([
-				"§7레시피북 미리보기 슬롯 처리를 위한 내부 플레이스홀더입니다.",
-				"§7실제 인벤토리/상자에 나타나면 안 되는 아이템이니 즉시 삭제해 주세요."
-			]);
 	}
 
 	private function associateIdWithInventory(int $id, Inventory $inventory) : void{
@@ -798,16 +762,8 @@ class InventoryManager{
 	}
 
 	private function trackItemStack(InventoryManagerEntry $entry, int $slotId, ItemStack $itemStack, ?int $itemStackRequestId) : ItemStackInfo{
-		$existing = $entry->itemStackInfos[$slotId] ?? null;
-		if($existing !== null && $this->itemStacksEqual($itemStack, $existing->getItem())){
-			//The item didn't actually change (e.g. a defensive full resync after an unrelated failed action, or a
-			//sync request for a slot nothing touched). Reassigning a new stack ID here would invalidate the
-			//client's existing, still-valid reference to this slot for no reason, causing unrelated in-flight
-			//actions on this slot to spuriously fail with "Mismatched expected itemstack" once the resync lands.
-			return $existing;
-		}
 		//TODO: ItemStack->isNull() would be nice to have here
-		$info = new ItemStackInfo($itemStackRequestId, $itemStack->getId() === 0 ? 0 : $this->newItemStackId(), $itemStack);
+		$info = new ItemStackInfo($itemStackRequestId, $itemStack->getId() === 0 ? 0 : $this->newItemStackId());
 		return $entry->itemStackInfos[$slotId] = $info;
 	}
 }
