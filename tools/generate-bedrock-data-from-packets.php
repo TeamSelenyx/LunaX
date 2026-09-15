@@ -624,13 +624,8 @@ function main(array $argv) : int{
 		}
 		$serializer = new ByteBufferReader($raw);
 
-		try{
-			$pk->decode($serializer);
-			$pk->handle($handler);
-		}catch(\Throwable $e){
-			echo "Packet on line " . ($lineNum + 1) . ": " . get_class($pk) . " decode/handle threw: " . $e->getMessage() . "\n";
-			continue;
-		}
+		$pk->decode($serializer);
+		$pk->handle($handler);
 		$remaining = strlen($serializer->getData()) - $serializer->getOffset();
 		if($remaining > 0){
 			echo "Packet on line " . ($lineNum + 1) . ": didn't read all data from " . get_class($pk) . " (stopped at offset " . $serializer->getOffset() . " of " . strlen($serializer->getData()) . " bytes): " . bin2hex($serializer->readByteArray($remaining)) . "\n";
