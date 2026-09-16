@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "462f1535a8f9bc620ff2d692d9aa138a",
+    "content-hash": "75389aca475154d575ef53f13064d671",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -206,7 +206,7 @@
             "dist": {
                 "type": "path",
                 "url": "../deps-1.26.50/BedrockData",
-                "reference": "e11fe90af46296273c966c4bd822c73cc6fc9748"
+                "reference": "480903868d12cd776cf8d7e75f4478315d9f7d5e"
             },
             "type": "library",
             "license": [
