@@ -345,6 +345,14 @@ class World implements ChunkManager{
 	 */
 	private array $chunkPopulationRequestQueueIndex = [];
 
+	/**
+	 * @var int[]
+	 * @phpstan-var array<int, int>
+	 */
+	private array $serverSoundHandleIdMap = [];
+
+	private int $nextSoundHandleId = 0;
+
 	private readonly GeneratorExecutor $generatorExecutor;
 
 	private bool $autoSave = true;
@@ -718,6 +726,23 @@ class World implements ChunkManager{
 				NetworkBroadcastUtils::broadcastPackets($this->filterViewersForPosition($pos, $players), $pk);
 			}
 		}
+	}
+
+	public function getNextSoundHandleId(Vector3 $pos) : int{
+		$key = self::blockHash($pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ());
+		$selectedId = $this->nextSoundHandleId++;
+		$this->serverSoundHandleIdMap[$key] = $selectedId;
+		return $selectedId;
+	}
+
+	public function getSoundHandleId(Vector3 $pos) : ?int{
+		$key = self::blockHash($pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ());
+		return $this->serverSoundHandleIdMap[$key] ?? null;
+	}
+
+	public function removeSoundHandleId(Vector3 $pos) : void{
+		$key = self::blockHash($pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ());
+		unset($this->serverSoundHandleIdMap[$key]);
 	}
 
 	/**

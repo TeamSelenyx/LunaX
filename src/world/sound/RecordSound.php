@@ -31,10 +31,10 @@ use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 
 class RecordSound implements Sound{
-	private static int $serverSoundHandleId = 0;
-
-	public function __construct(private RecordType $recordType){
-		self::$serverSoundHandleId++; //TODO: We need better one, we cannot make use of new system yet.
+	public function __construct(
+		private RecordType $recordType,
+		private int $serverSoundHandleId = 0
+	){
 	}
 
 	public function encode(Vector3 $pos) : array{
@@ -60,8 +60,8 @@ class RecordSound implements Sound{
 				RecordType::DISK_WARD => LevelSoundEvent::RECORD_WARD,
 				RecordType::DISK_11 => LevelSoundEvent::RECORD_11,
 				RecordType::DISK_WAIT => LevelSoundEvent::RECORD_WAIT
-			}, $pos->x, $pos->y, $pos->z, 1, 1, 0, true, self::$serverSoundHandleId, null),
-			RecordStartedPacket::create(BlockPosition::fromVector3($pos), self::$serverSoundHandleId),
+			}, $pos->x, $pos->y, $pos->z, 1, 1, 0, true, $this->serverSoundHandleId, null),
+			RecordStartedPacket::create(BlockPosition::fromVector3($pos), $this->serverSoundHandleId),
 		];
 	}
 }
