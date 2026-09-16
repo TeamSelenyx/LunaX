@@ -206,7 +206,7 @@
             "dist": {
                 "type": "path",
                 "url": "../deps-1.26.50/BedrockData",
-                "reference": "7a43efbf93ebc6a43cd5c9647b37155cd058b8eb"
+                "reference": "1aa7091f94fd14d7a9ff49ad8053481dcdbd3dbd"
             },
             "type": "library",
             "license": [
