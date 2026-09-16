@@ -27,7 +27,7 @@
 **이 플랫폼은 바닐라 서바이벌 서버를 호스팅하기에 적합하지 않습니다.**
 이 게임은 바닐라 게임의 여러 기능, 예를 들어 바닐라 월드 생성, 레드스톤 회로, 몹 AI 및 기타 여러 기능을 포함하지 않습니다.
 
-만약 **순수한 바닐라 서바이벌 멀티플레이어**를 즐기고 싶다면, Luna X 대신 [공식 Minecraft: Bedrock 서버 소프트웨어](https://minecraft.net/download/server/bedrock)를 사용하는 것을 고려해 보세요.
+만약 **순수한 바닐라 서바이벌 멀티플레이**를 즐기고 싶다면, Luna X 대신 [공식 Minecraft: Bedrock 서버 소프트웨어](https://minecraft.net/download/server/bedrock)를 사용하는 것을 고려해 보세요.
 
 만약 그 방법이 여의치 않다면, [Poggit](https://poggit.pmmp.io/plugins)에서 플러그인을 사용하여 Luna X의 부족한 기능을 추가하거나, 직접 플러그인을 작성하여 구현할 수도 있습니다.
 
