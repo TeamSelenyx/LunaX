@@ -24,12 +24,12 @@
   <p>사용자가 커스텀한 스킨을 서버에서 사용</p>
 
 ## :x: Luna X는 공식 Minecraft 서버 소프트웨어가 아닙니다
-**It is poorly suited to hosting vanilla survival servers.**
-It doesn't have many features from the vanilla game, such as vanilla world generation, redstone, mob AI, and various other things.
+**이 플랫폼은 바닐라 서바이벌 서버를 호스팅하기에 적합하지 않습니다.**
+이 게임은 바닐라 게임의 여러 기능, 예를 들어 바닐라 월드 생성, 레드스톤 회로, 몹 AI 및 기타 여러 기능을 포함하지 않습니다.
 
-If you just want to play **vanilla survival multiplayer**, consider using the [official Minecraft: Bedrock server software](https://minecraft.net/download/server/bedrock) instead of PocketMine-MP.
+만약 **순수한 바닐라 서바이벌 멀티플레이어**를 즐기고 싶다면, Luna X 대신 [공식 Minecraft: Bedrock 서버 소프트웨어](https://minecraft.net/download/server/bedrock)를 사용하는 것을 고려해 보세요.
 
-If that's not an option for you, you may be able to add some of PocketMine-MP's missing features using plugins from [Poggit](https://poggit.pmmp.io/plugins), or write plugins to implement them yourself.
+만약 그 방법이 여의치 않다면, [Poggit](https://poggit.pmmp.io/plugins)에서 플러그인을 사용하여 Luna X의 부족한 기능을 추가하거나, 직접 플러그인을 작성하여 구현할 수도 있습니다.
 
 ## 라이센스 정보
 해당 프로젝트는 LGPL-3.0로 배포되며, [LICENSE](/LICENSE) 해당 파일을 통해 자세하게 볼 수 있습니다.
