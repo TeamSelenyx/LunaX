@@ -83,15 +83,18 @@ final class ChunkSerializer{
 	/**
 	 * @phpstan-param DimensionIds::* $dimensionId
 	 */
-	public static function serializeFullChunk(Chunk $chunk, int $dimensionId, BlockTranslator $blockTranslator, ?string $tiles = null) : string{
+	public static function serializeFullChunk(Chunk $chunk, int $dimensionId, BlockTranslator $blockTranslator, ?string $tiles = null, bool $requestableSubChunks = false) : string{
 		$stream = new ByteBufferWriter();
 
-		$subChunkCount = self::getSubChunkCount($chunk, $dimensionId);
-		$writtenCount = 0;
-
 		[$minSubChunkIndex, $maxSubChunkIndex] = self::getDimensionChunkBounds($dimensionId);
-		for($y = $minSubChunkIndex; $writtenCount < $subChunkCount; ++$y, ++$writtenCount){
-			self::serializeSubChunk($chunk->getSubChunk($y), $blockTranslator, $stream, false);
+
+		if(!$requestableSubChunks){
+			$subChunkCount = self::getSubChunkCount($chunk, $dimensionId);
+			$writtenCount = 0;
+
+			for($y = $minSubChunkIndex; $writtenCount < $subChunkCount; ++$y, ++$writtenCount){
+				self::serializeSubChunk($chunk->getSubChunk($y), $blockTranslator, $stream, false);
+			}
 		}
 
 		$biomeIdMap = LegacyBiomeIdToStringIdMap::getInstance();

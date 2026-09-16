@@ -76,8 +76,11 @@ use pocketmine\network\mcpe\protocol\serializer\BitSet;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\SetPlayerGameTypePacket;
 use pocketmine\network\mcpe\protocol\SpawnExperienceOrbPacket;
+use pocketmine\network\mcpe\protocol\SubChunkPacket;
+use pocketmine\network\mcpe\protocol\SubChunkRequestPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
+use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\inventory\MismatchTransactionData;
 use pocketmine\network\mcpe\protocol\types\inventory\NetworkInventoryAction;
@@ -91,7 +94,13 @@ use pocketmine\network\mcpe\protocol\types\inventory\UseItemTransactionData;
 use pocketmine\network\mcpe\protocol\types\PlayerAction;
 use pocketmine\network\mcpe\protocol\types\PlayerAuthInputFlags;
 use pocketmine\network\mcpe\protocol\types\PlayerBlockActionWithBlockInfo;
+use pocketmine\network\mcpe\protocol\types\SubChunkPacketEntryCommon;
+use pocketmine\network\mcpe\protocol\types\SubChunkPacketEntryWithoutCache;
+use pocketmine\network\mcpe\protocol\types\SubChunkPacketEntryWithoutCacheList;
+use pocketmine\network\mcpe\protocol\types\SubChunkRequestResult;
+use pocketmine\network\mcpe\serializer\ChunkSerializer;
 use pocketmine\network\PacketHandlingException;
+use pmmp\encoding\ByteBufferWriter;
 use pocketmine\player\Player;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Limits;
@@ -817,6 +826,52 @@ class InGamePacketHandler extends PacketHandler{
 
 	public function handleRequestChunkRadius(RequestChunkRadiusPacket $packet) : bool{
 		$this->player->setViewDistance($packet->radius);
+
+		return true;
+	}
+
+	public function handleSubChunkRequest(SubChunkRequestPacket $packet) : bool{
+		if($packet->getDimension() !== DimensionIds::OVERWORLD){
+			return false;
+		}
+
+		[$minSubChunkIndex, $maxSubChunkIndex] = ChunkSerializer::getDimensionChunkBounds(DimensionIds::OVERWORLD);
+
+		$world = $this->player->getLocation()->getWorld();
+		$blockTranslator = $this->session->getTypeConverter()->getBlockTranslator();
+		$basePosition = $packet->getBasePosition();
+
+		$entries = [];
+		foreach($packet->getEntries() as $offset){
+			$chunkX = $basePosition->getX() + $offset->getXOffset();
+			$chunkZ = $basePosition->getZ() + $offset->getZOffset();
+			$subChunkY = $basePosition->getY() + $offset->getYOffset();
+
+			if($subChunkY < $minSubChunkIndex || $subChunkY > $maxSubChunkIndex){
+				$entries[] = new SubChunkPacketEntryWithoutCache(new SubChunkPacketEntryCommon($offset, SubChunkRequestResult::Y_INDEX_OUT_OF_BOUNDS, null, null, null));
+				continue;
+			}
+
+			if(!$world->isChunkLoaded($chunkX, $chunkZ)){
+				$entries[] = new SubChunkPacketEntryWithoutCache(new SubChunkPacketEntryCommon($offset, SubChunkRequestResult::NO_SUCH_CHUNK, null, null, null));
+				continue;
+			}
+
+			$chunk = $world->getChunk($chunkX, $chunkZ);
+			if($chunk === null){
+				$entries[] = new SubChunkPacketEntryWithoutCache(new SubChunkPacketEntryCommon($offset, SubChunkRequestResult::NO_SUCH_CHUNK, null, null, null));
+				continue;
+			}
+
+			$subChunk = $chunk->getSubChunk($subChunkY);
+			$stream = new ByteBufferWriter();
+			ChunkSerializer::serializeSubChunk($subChunk, $blockTranslator, $stream, false);
+
+			$result = $subChunk->isEmptyFast() ? SubChunkRequestResult::SUCCESS_ALL_AIR : SubChunkRequestResult::SUCCESS;
+			$entries[] = new SubChunkPacketEntryWithoutCache(new SubChunkPacketEntryCommon($offset, $result, $stream->getData(), null, null));
+		}
+
+		$this->session->sendDataPacket(SubChunkPacket::create($packet->getDimension(), $basePosition, new SubChunkPacketEntryWithoutCacheList($entries)));
 
 		return true;
 	}
