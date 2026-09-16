@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2847f8994bd6c1558d2c4f622a7b0bdb",
+    "content-hash": "462f1535a8f9bc620ff2d692d9aa138a",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -206,7 +206,7 @@
             "dist": {
                 "type": "path",
                 "url": "../deps-1.26.50/BedrockData",
-                "reference": "1aa7091f94fd14d7a9ff49ad8053481dcdbd3dbd"
+                "reference": "e11fe90af46296273c966c4bd822c73cc6fc9748"
             },
             "type": "library",
             "license": [
@@ -214,7 +214,6 @@
             ],
             "description": "Blobs of data generated from Minecraft: Bedrock Edition, used by PocketMine-MP",
             "transport-options": {
-                "symlink": false,
                 "relative": true
             }
         },
@@ -248,7 +247,7 @@
             "dist": {
                 "type": "path",
                 "url": "../deps-1.26.50/BedrockProtocol",
-                "reference": "e9d238fb9e84a167a21a709e09b7094ae84a5db0"
+                "reference": "e9518bbbea104a13a0dfe738be27d9a5703a96e4"
             },
             "require": {
                 "ext-encoding": "~1.0.0",
@@ -287,7 +286,6 @@
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "transport-options": {
-                "symlink": false,
                 "relative": true
             }
         },
