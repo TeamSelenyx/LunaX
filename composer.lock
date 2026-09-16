@@ -247,7 +247,7 @@
             "dist": {
                 "type": "path",
                 "url": "../deps-1.26.50/BedrockProtocol",
-                "reference": "e9518bbbea104a13a0dfe738be27d9a5703a96e4"
+                "reference": "9e6df7c91f0fd782d7243424198946c58918d355"
             },
             "require": {
                 "ext-encoding": "~1.0.0",
