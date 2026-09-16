@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e016812750cf05e39bf58b5396cc3c9c",
+    "content-hash": "2847f8994bd6c1558d2c4f622a7b0bdb",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -202,27 +202,21 @@
         },
         {
             "name": "pocketmine/bedrock-data",
-            "version": "6.8.0+bedrock-1.26.40",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/TeamSelenyx/BedrockData.git",
-                "reference": "4c0b698bd85f4f9c2fb9c1765c2a696ceeba39bb"
-            },
+            "version": "dev-bedrock-1.26.50",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/TeamSelenyx/BedrockData/zipball/4c0b698bd85f4f9c2fb9c1765c2a696ceeba39bb",
-                "reference": "4c0b698bd85f4f9c2fb9c1765c2a696ceeba39bb",
-                "shasum": ""
+                "type": "path",
+                "url": "../deps-1.26.50/BedrockData",
+                "reference": "22d301f7520b91a9a5d19b92ceced008bb05ea95"
             },
             "type": "library",
             "license": [
                 "CC0-1.0"
             ],
             "description": "Blobs of data generated from Minecraft: Bedrock Edition, used by PocketMine-MP",
-            "support": {
-                "source": "https://github.com/TeamSelenyx/BedrockData/tree/6.8.0+bedrock-1.26.40"
-            },
-            "time": "2026-08-12T14:48:11+00:00"
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
         },
         {
             "name": "pocketmine/bedrock-item-upgrade-schema",
@@ -250,17 +244,11 @@
         },
         {
             "name": "pocketmine/bedrock-protocol",
-            "version": "59.1.0+bedrock-1.26.45",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/TeamSelenyx/BedrockProtocol.git",
-                "reference": "87e5b9d470b0cba30d896501efe054e81f0a24cd"
-            },
+            "version": "dev-bedrock-1.26.50",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/TeamSelenyx/BedrockProtocol/zipball/87e5b9d470b0cba30d896501efe054e81f0a24cd",
-                "reference": "87e5b9d470b0cba30d896501efe054e81f0a24cd",
-                "shasum": ""
+                "type": "path",
+                "url": "../deps-1.26.50/BedrockProtocol",
+                "reference": "9cabdbcbdcde91e3d95fdb6f3cd0c45a1a00cf32"
             },
             "require": {
                 "ext-encoding": "~1.0.0",
@@ -298,10 +286,10 @@
                 "LGPL-3.0"
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
-            "support": {
-                "source": "https://github.com/TeamSelenyx/BedrockProtocol/tree/59.1.0+bedrock-1.26.45"
-            },
-            "time": "2026-09-06T14:44:36+00:00"
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
         },
         {
             "name": "pocketmine/binaryutils",
@@ -2772,7 +2760,10 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "pocketmine/bedrock-data": 20,
+        "pocketmine/bedrock-protocol": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
