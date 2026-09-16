@@ -206,7 +206,7 @@
             "dist": {
                 "type": "path",
                 "url": "../deps-1.26.50/BedrockData",
-                "reference": "22d301f7520b91a9a5d19b92ceced008bb05ea95"
+                "reference": "7a43efbf93ebc6a43cd5c9647b37155cd058b8eb"
             },
             "type": "library",
             "license": [
@@ -248,7 +248,7 @@
             "dist": {
                 "type": "path",
                 "url": "../deps-1.26.50/BedrockProtocol",
-                "reference": "9cabdbcbdcde91e3d95fdb6f3cd0c45a1a00cf32"
+                "reference": "e9d238fb9e84a167a21a709e09b7094ae84a5db0"
             },
             "require": {
                 "ext-encoding": "~1.0.0",
