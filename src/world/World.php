@@ -351,7 +351,7 @@ class World implements ChunkManager{
 	 */
 	private array $serverSoundHandleIdMap = [];
 
-	private int $nextSoundHandleId = 0;
+	private static int $nextSoundHandleId = 0;
 
 	private readonly GeneratorExecutor $generatorExecutor;
 
@@ -733,7 +733,7 @@ class World implements ChunkManager{
 	 */
 	public function getNextSoundHandleId(Vector3 $pos) : int{
 		$key = self::blockHash($pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ());
-		$selectedId = $this->nextSoundHandleId++;
+		$selectedId = self::$nextSoundHandleId++;
 		$this->serverSoundHandleIdMap[$key] = $selectedId;
 		return $selectedId;
 	}
