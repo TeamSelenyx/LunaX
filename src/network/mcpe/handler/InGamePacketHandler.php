@@ -73,6 +73,7 @@ use pocketmine\network\mcpe\protocol\PlayerHotbarPacket;
 use pocketmine\network\mcpe\protocol\PlayerSkinPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\serializer\BitSet;
+use pocketmine\network\mcpe\protocol\ServerboundDiagnosticsPacket;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\SetPlayerGameTypePacket;
 use pocketmine\network\mcpe\protocol\SpawnExperienceOrbPacket;
@@ -90,7 +91,7 @@ use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionD
 use pocketmine\network\mcpe\protocol\types\inventory\UseItemTransactionData;
 use pocketmine\network\mcpe\protocol\types\PlayerAction;
 use pocketmine\network\mcpe\protocol\types\PlayerAuthInputFlags;
-use pocketmine\network\mcpe\protocol\types\PlayerBlockActionWithBlockInfo;
+use pocketmine\network\mcpe\protocol\types\PlayerBlockAction;
 use pocketmine\network\PacketHandlingException;
 use pocketmine\player\Player;
 use pocketmine\utils\AssumptionFailedError;
@@ -126,6 +127,7 @@ use const JSON_THROW_ON_ERROR;
 #[SilentDiscard(PlayerHotbarPacket::class, comment: "Not needed")]
 #[SilentDiscard(SetActorMotionPacket::class, comment: "Not needed, erroneously sent by client when in a vehicle")]
 #[SilentDiscard(SpawnExperienceOrbPacket::class, comment: "XP drops should be server-calculated")]
+#[SilentDiscard(ServerboundDiagnosticsPacket::class, comment: "Not needed, noisy debug")]
 class InGamePacketHandler extends PacketHandler{
 	private const MAX_FORM_RESPONSE_SIZE = 10 * 1024; //10 KiB should be more than enough
 	private const MAX_FORM_RESPONSE_DEPTH = 2; //modal/simple will be 1, custom forms 2 - they will never contain anything other than string|int|float|bool|null
@@ -252,16 +254,15 @@ class InGamePacketHandler extends PacketHandler{
 
 		$useItemTransaction = $packet->getItemInteractionData();
 		if($useItemTransaction !== null){
-			$transactionData = $useItemTransaction->getTransactionData();
-			if(count($transactionData->getActions()) > 100){
+			if(count($useItemTransaction->getTransactionData()->getActions()) > 100){
 				throw new PacketHandlingException("Too many actions in item use transaction");
 			}
 
 			$this->inventoryManager->setCurrentItemStackRequestId($useItemTransaction->getRequestId());
-			$this->inventoryManager->addRawPredictedSlotChanges($transactionData->getActions());
-			if(!$this->handleUseItemTransaction($transactionData)){
+			$this->inventoryManager->addRawPredictedSlotChanges($useItemTransaction->getTransactionData()->getActions());
+			if(!$this->handleUseItemTransaction($useItemTransaction->getTransactionData())){
 				$packetHandled = false;
-				$this->session->getLogger()->debug("Unhandled transaction in PlayerAuthInputPacket (type " . $transactionData->getActionType() . ")");
+				$this->session->getLogger()->debug("Unhandled transaction in PlayerAuthInputPacket (type " . $useItemTransaction->getTransactionData()->getActionType() . ")");
 			}else{
 				$this->inventoryManager->syncMismatchedPredictedSlotChanges();
 			}
@@ -280,7 +281,7 @@ class InGamePacketHandler extends PacketHandler{
 			}
 			foreach(Utils::promoteKeys($blockActions) as $k => $blockAction){
 				$actionHandled = false;
-				if($blockAction instanceof PlayerBlockActionWithBlockInfo){
+				if($blockAction instanceof PlayerBlockAction){
 					$actionHandled = $this->handlePlayerActionFromData($blockAction->getActionType(), $blockAction->getBlockPosition(), $blockAction->getFace());
 				}
 
@@ -292,7 +293,7 @@ class InGamePacketHandler extends PacketHandler{
 		}
 
 		if($itemStackRequest !== null){
-			$itemStackResponse = $itemStackResponseBuilder?->build() ?? new ItemStackResponse(ItemStackResponse::RESULT_ERROR, $itemStackRequest->getRequestId());
+			$itemStackResponse = $itemStackResponseBuilder?->build() ?? new ItemStackResponse(ItemStackResponse::RESULT_ERROR, $itemStackRequest->getRequestId(), null);
 			$this->session->sendDataPacket(ItemStackResponsePacket::create([$itemStackResponse]));
 		}
 
@@ -301,32 +302,29 @@ class InGamePacketHandler extends PacketHandler{
 
 	public function handleInventoryTransaction(InventoryTransactionPacket $packet) : bool{
 		$result = true;
-		$transactionData = $packet->trData;
 
-		if($transactionData !== null && count($transactionData->getActions()) > 50){
+		if(count($packet->trData->getActions()) > 50){
 			throw new PacketHandlingException("Too many actions in inventory transaction");
 		}
-		if(count($packet->requestChangedSlots) > 10){
+		if($packet->requestChangedSlots !== null && count($packet->requestChangedSlots) > 10){
 			throw new PacketHandlingException("Too many slot sync requests in inventory transaction");
 		}
 
 		$this->inventoryManager->setCurrentItemStackRequestId($packet->requestId);
-		if($transactionData !== null){
-			$this->inventoryManager->addRawPredictedSlotChanges($transactionData->getActions());
-		}
+		$this->inventoryManager->addRawPredictedSlotChanges($packet->trData->getActions());
 
-		if($transactionData instanceof NormalTransactionData){
-			$result = $this->handleNormalTransaction($transactionData, $packet->requestId);
-		}elseif($transactionData instanceof MismatchTransactionData){
+		if($packet->trData instanceof NormalTransactionData){
+			$result = $this->handleNormalTransaction($packet->trData, $packet->requestId);
+		}elseif($packet->trData instanceof MismatchTransactionData){
 			$this->session->getLogger()->debug("Mismatch transaction received");
 			$this->inventoryManager->requestSyncAll();
 			$result = true;
-		}elseif($transactionData instanceof UseItemTransactionData){
-			$result = $this->handleUseItemTransaction($transactionData);
-		}elseif($transactionData instanceof UseItemOnEntityTransactionData){
-			$result = $this->handleUseItemOnEntityTransaction($transactionData);
-		}elseif($transactionData instanceof ReleaseItemTransactionData){
-			$result = $this->handleReleaseItemTransaction($transactionData);
+		}elseif($packet->trData instanceof UseItemTransactionData){
+			$result = $this->handleUseItemTransaction($packet->trData);
+		}elseif($packet->trData instanceof UseItemOnEntityTransactionData){
+			$result = $this->handleUseItemOnEntityTransaction($packet->trData);
+		}elseif($packet->trData instanceof ReleaseItemTransactionData){
+			$result = $this->handleReleaseItemTransaction($packet->trData);
 		}
 
 		$this->inventoryManager->syncMismatchedPredictedSlotChanges();
@@ -335,7 +333,7 @@ class InGamePacketHandler extends PacketHandler{
 		//haven't changed. Handling these is necessary to ensure the client inventory stays in sync if the server
 		//rejects the transaction. The most common example of this is equipping armor by right-click, which doesn't send
 		//a legacy prediction action for the destination armor slot.
-		if(count($packet->requestChangedSlots) > 0){
+		if($packet->requestChangedSlots !== null){
 			foreach($packet->requestChangedSlots as $containerInfo){
 				foreach($containerInfo->getChangedSlotIndexes() as $netSlot){
 					[$windowId, $slot] = ItemStackContainerIdTranslator::translate($containerInfo->getContainerId(), $this->inventoryManager->getCurrentWindowId(), $netSlot);
@@ -618,7 +616,7 @@ class InGamePacketHandler extends PacketHandler{
 			throw new PacketHandlingException("Too many requests in ItemStackRequestPacket");
 		}
 		foreach($packet->getRequests() as $request){
-			$responses[] = $this->handleSingleItemStackRequest($request)?->build() ?? new ItemStackResponse(ItemStackResponse::RESULT_ERROR, $request->getRequestId());
+			$responses[] = $this->handleSingleItemStackRequest($request)?->build() ?? new ItemStackResponse(ItemStackResponse::RESULT_ERROR, $request->getRequestId(), null);
 		}
 
 		$this->session->sendDataPacket(ItemStackResponsePacket::create($responses));
