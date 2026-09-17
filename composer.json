@@ -1,5 +1,5 @@
 {
-   "name": "pocketmine/pocketmine-mp",
+   "name": "axolotl-pm/pocketmine-mp",
    "description": "A server software for Minecraft: Bedrock Edition written in PHP",
    "type": "project",
    "homepage": "https://pmmp.io",
@@ -33,11 +33,12 @@
       "ext-zlib": ">=1.2.11",
       "composer-runtime-api": "^2.0",
       "adhocore/json-comment": "~1.2.0",
-      "netresearch/jsonmapper": "~v5.0.0",
-      "pocketmine/bedrock-block-upgrade-schema": "~5.3.0+bedrock-1.26.30",
-      "pocketmine/bedrock-data": "~6.8.0+bedrock-1.26.40",
-      "pocketmine/bedrock-item-upgrade-schema": "~1.18.0+bedrock-1.26.30",
-      "pocketmine/bedrock-protocol": "~59.1.0+bedrock-1.26.45",
+      "axolotl-pm/bedrock-block-upgrade-schema": "dev-bedrock-1.26.50",
+      "teamselenyx/bedrock-data": "dev-1.26.50",
+      "axolotl-pm/bedrock-item-upgrade-schema": "dev-bedrock-1.26.50",
+      "teamselenyx/bedrock-protocol": "dev-1.26.50",
+      "axolotl-pm/xoroshiro128pp": "^0.1.0",
+      "netresearch/jsonmapper": "~v6.0.0",
       "pocketmine/binaryutils": "^0.2.1",
       "pocketmine/callback-validator": "~1.0.4",
       "pocketmine/color": "^0.3.0",
@@ -58,6 +59,7 @@
       "phpunit/phpunit": "^10.5.24"
    },
    "replace": {
+      "pocketmine/pocketmine-mp": "*",
       "symfony/polyfill-ctype": "*",
       "symfony/polyfill-mbstring": "*"
    },
@@ -98,8 +100,8 @@
       "update-codegen": [
          "@php build/codegen/bedrockdata-path-consts.php",
          "@php build/codegen/biome-ids.php",
-         "@php build/codegen/block-serializer-consts.php vendor/pocketmine/bedrock-data/canonical_block_states.nbt",
-         "@php build/codegen/item-type-names.php vendor/pocketmine/bedrock-data/required_item_list.json",
+         "@php build/codegen/block-serializer-consts.php vendor/teamselenyx/bedrock-data/canonical_block_states.nbt",
+         "@php build/codegen/item-type-names.php vendor/teamselenyx/bedrock-data/required_item_list.json",
          "@php build/codegen/known-translation-apis.php",
          "@php build/codegen/pocketmine-yml-property-consts.php",
          "@php build/codegen/registry-interface.php src generated"
@@ -107,20 +109,43 @@
    },
    "repositories": [
       {
-         "type": "vcs",
-         "url": "https://github.com/TeamSelenyx/BedrockProtocol.git"
+         "type": "package",
+         "package": {
+            "name": "teamselenyx/bedrock-protocol",
+            "version": "dev-1.26.50",
+            "source": {
+               "type": "git",
+               "url": "https://github.com/TeamSelenyx/BedrockProtocol.git",
+               "reference": "bc5a4d7b03cf5a1eef47b218fca2ee27fff87ef2"
+            },
+            "require": {
+               "php": "^8.1",
+               "ext-encoding": "~1.0.0",
+               "ext-json": "*",
+               "pocketmine/binaryutils": "^0.2.0",
+               "pocketmine/color": "^0.2.0 || ^0.3.0",
+               "pocketmine/math": "^0.3.0 || ^0.4.0 || ^1.0.0",
+               "pocketmine/nbt": "^1.0.0",
+               "ramsey/uuid": "^4.1"
+            },
+            "autoload": {
+               "psr-4": {
+                  "pocketmine\\network\\mcpe\\protocol\\": "src/"
+               }
+            }
+         }
       },
       {
-         "type": "vcs",
-         "url": "https://github.com/TeamSelenyx/BedrockData.git"
-      },
-      {
-         "type": "vcs",
-         "url": "https://github.com/TeamSelenyx/BedrockBlockUpgradeSchema.git"
-      },
-      {
-         "type": "vcs",
-         "url": "https://github.com/TeamSelenyx/BedrockItemUpgradeSchema.git"
+         "type": "package",
+         "package": {
+            "name": "teamselenyx/bedrock-data",
+            "version": "dev-1.26.50",
+            "source": {
+               "type": "git",
+               "url": "https://github.com/TeamSelenyx/BedrockData.git",
+               "reference": "04a44f86a23f85a3319a65dfbeca091b75bd9e5f"
+            }
+         }
       }
    ]
 }
