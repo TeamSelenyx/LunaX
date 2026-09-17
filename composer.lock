@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2ca91d7cf6331ee421e6c6c8b7b8c62d",
+    "content-hash": "66d1f1946ba62bcdd2136fe6684a180d",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -93,29 +93,13 @@
         },
         {
             "name": "axolotl-pm/bedrock-data",
-            "version": "dev-bedrock-1.26.50",
+            "version": "dev-1.26.50",
             "source": {
                 "type": "git",
-                "url": "https://github.com/axolotl-pm/BedrockData.git",
-                "reference": "7e6aee3c6c9fba59b15989780b5e473ad2499f64"
+                "url": "https://github.com/TeamSelenyx/BedrockData.git",
+                "reference": "e9d3bf5e1e52371db6a324f3f4a7a1723e75bad7"
             },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/axolotl-pm/BedrockData/zipball/7e6aee3c6c9fba59b15989780b5e473ad2499f64",
-                "reference": "7e6aee3c6c9fba59b15989780b5e473ad2499f64",
-                "shasum": ""
-            },
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "CC0-1.0"
-            ],
-            "description": "Blobs of data generated from Minecraft: Bedrock Edition, used by PocketMine-MP",
-            "support": {
-                "issues": "https://github.com/axolotl-pm/BedrockData/issues",
-                "source": "https://github.com/axolotl-pm/BedrockData/tree/bedrock-1.26.50"
-            },
-            "time": "2026-08-19T14:55:37+00:00"
+            "type": "library"
         },
         {
             "name": "axolotl-pm/bedrock-item-upgrade-schema",
@@ -145,17 +129,11 @@
         },
         {
             "name": "axolotl-pm/bedrock-protocol",
-            "version": "dev-bedrock-1.26.50",
+            "version": "dev-1.26.50",
             "source": {
                 "type": "git",
-                "url": "https://github.com/axolotl-pm/BedrockProtocol.git",
-                "reference": "92ff1bb57623e13bdf1a4cb56fa56ce8b495af3f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/axolotl-pm/BedrockProtocol/zipball/92ff1bb57623e13bdf1a4cb56fa56ce8b495af3f",
-                "reference": "92ff1bb57623e13bdf1a4cb56fa56ce8b495af3f",
-                "shasum": ""
+                "url": "https://github.com/TeamSelenyx/BedrockProtocol.git",
+                "reference": "6032ba1499d0d46085f697cf6ed8bb7b4bd4a01f"
             },
             "require": {
                 "ext-encoding": "~1.0.0",
@@ -167,28 +145,12 @@
                 "pocketmine/nbt": "^1.0.0",
                 "ramsey/uuid": "^4.1"
             },
-            "require-dev": {
-                "phpstan/phpstan": "2.1.0",
-                "phpstan/phpstan-phpunit": "^2.0.0",
-                "phpstan/phpstan-strict-rules": "^2.0.0",
-                "phpunit/phpunit": "^9.5 || ^10.0 || ^11.0"
-            },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "pocketmine\\network\\mcpe\\protocol\\": "src/"
                 }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
-            "support": {
-                "issues": "https://github.com/axolotl-pm/BedrockProtocol/issues",
-                "source": "https://github.com/axolotl-pm/BedrockProtocol/tree/bedrock-1.26.50"
-            },
-            "time": "2026-09-15T16:02:33+00:00"
+            }
         },
         {
             "name": "axolotl-pm/xoroshiro128pp",
