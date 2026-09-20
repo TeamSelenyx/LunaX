@@ -38,14 +38,26 @@ final class Skin{
 		128 * 64 * 4,
 		128 * 128 * 4
 	];
+	public const ACCEPTED_PERSONA_SKIN_SIZES = [
+		64 * 32 * 4,
+		64 * 64 * 4,
+		128 * 64 * 4,
+		128 * 128 * 4,
+		256 * 128 * 4,
+		256 * 256 * 4,
+		512 * 256 * 4,
+		512 * 512 * 4
+	];
 
 	private string $skinId;
 	private string $skinData;
 	private string $capeData;
 	private string $geometryName;
 	private string $geometryData;
-	private string $resourcePatch = ""; //preservar o resourcePatch original (vanilla preserva)
-	private string $capeId = ""; //preservar capeId (vanilla preserva)
+
+	private string $resourcePatch = "";
+	private SkinImage $skinImage;
+	private bool $isPersona = false;
 
 	private static function checkLength(string $string, string $name, int $maxLength) : void{
 		if(strlen($string) > $maxLength){
@@ -53,7 +65,7 @@ final class Skin{
 		}
 	}
 
-	public function __construct(string $skinId, string $skinData, string $capeData = "", string $geometryName = "", string $geometryData = "", string $resourcePatch = "", string $capeId = ""){
+	public function __construct(string $skinId, string $skinData, string $capeData = "", string $geometryName = "", string $geometryData = "", string $resourcePatch = ""){
 		self::checkLength($skinId, "Skin ID", Limits::INT16_MAX);
 		self::checkLength($geometryName, "Geometry name", Limits::INT16_MAX);
 		self::checkLength($geometryData, "Geometry data", Limits::INT32_MAX);
@@ -92,7 +104,6 @@ final class Skin{
 		$this->geometryName = $geometryName;
 		$this->geometryData = $geometryData;
 		$this->resourcePatch = $resourcePatch;
-		$this->capeId = $capeId;
 	}
 
 	public function getSkinId() : string{
@@ -117,9 +128,5 @@ final class Skin{
 
 	public function getResourcePatch() : string{
 		return $this->resourcePatch;
-	}
-
-	public function getCapeId() : string{
-		return $this->capeId;
 	}
 }

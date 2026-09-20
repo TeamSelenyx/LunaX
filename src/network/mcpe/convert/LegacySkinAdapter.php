@@ -31,36 +31,38 @@ use function is_array;
 use function is_string;
 use function json_decode;
 use function json_encode;
+use function random_bytes;
+use function str_repeat;
 use const JSON_THROW_ON_ERROR;
 
 class LegacySkinAdapter implements SkinAdapter{
 
 	public function toSkinData(Skin $skin) : SkinData{
 		$capeData = $skin->getCapeData();
-		$capeImage = $capeData === "" ? new SkinImage(0, 0, "") : new SkinImage(64, 32, $capeData); //SkinImage(height, width, data) — wire espera 32x64 (vanilla)
+		$capeImage = $capeData === "" ? new SkinImage(0, 0, "") : new SkinImage(32, 64, $capeData);
 		$geometryName = $skin->getGeometryName();
 		if($geometryName === ""){
 			$geometryName = "geometry.humanoid.custom";
 		}
-		$resourcePatch = $skin->getResourcePatch();
-		if($resourcePatch === ""){
-			$resourcePatch = json_encode(["geometry" => ["default" => $geometryName]], JSON_THROW_ON_ERROR);
+		$geometryData = $skin->getGeometryData();
+		if($geometryData === ""){
+			//the client drops the connection if it receives an empty geometry string
+			$geometryData = SkinData::GEOMETRY_DATA_NONE;
 		}
 		return new SkinData(
 			$skin->getSkinId(),
 			"", //TODO: playfab ID
-			$resourcePatch,
-			SkinImage::fromLegacy($skin->getSkinData()), [],
+			json_encode(["geometry" => ["default" => $geometryName]], JSON_THROW_ON_ERROR),
+			SkinImage::fromLegacy($skin->getSkinData()),
+			[],
 			$capeImage,
-			$skin->getGeometryData(),
-			capeId: $skin->getCapeId(), //preservar capeId (vanilla preserva)
-			trustedSkinFlag: SkinData::TRUSTED_SKIN_FLAG_FALSE //custom skins render as default when "unset"; vanilla sends "false"
+			$geometryData
 		);
 	}
 
 	public function fromSkinData(SkinData $data) : Skin{
 		if($data->isPersona()){
-			return new Skin($data->getSkinId(), $data->getSkinImage()->getData(), "", "", $data->getGeometryData(), $data->getResourcePatch(), $data->getCapeId());
+			return new Skin("Standard_Custom", str_repeat(random_bytes(3) . "\xff", 4096));
 		}
 
 		$capeData = $data->isPersonaCapeOnClassic() ? "" : $data->getCapeImage()->getData();
@@ -72,6 +74,6 @@ class LegacySkinAdapter implements SkinAdapter{
 			throw new InvalidSkinException("Missing geometry name field");
 		}
 
-		return new Skin($data->getSkinId(), $data->getSkinImage()->getData(), $capeData, $geometryName, $data->getGeometryData(), $data->getResourcePatch(), $data->getCapeId());
+		return new Skin($data->getSkinId(), $data->getSkinImage()->getData(), $capeData, $geometryName, $data->getGeometryDataJson());
 	}
 }
