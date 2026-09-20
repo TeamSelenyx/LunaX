@@ -26,6 +26,7 @@ declare(strict_types=1);
  */
 namespace pocketmine\command;
 
+use pocketmine\command\overload\ParameterDataConverter;
 use pocketmine\command\utils\CommandException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\lang\Translatable;
@@ -268,6 +269,18 @@ abstract class Command{
 				$user->sendMessage($colored);
 			}
 		}
+	}
+
+	public function getTargetConverter(CommandSender $sender, string $targetArg = "") : ?array{
+		$converter = new ParameterDataConverter($sender, $targetArg);
+		$targets = $converter->getTargetConverter();
+		return $targets;
+	}
+
+	public function getPlayerTargetConverter(CommandSender $sender, string $targetArg = "") : ?array{
+		$converter = new ParameterDataConverter($sender, $targetArg);
+		$targets = $converter->getPlayerTargetConverter();
+		return $targets;
 	}
 
 	public function __toString() : string{

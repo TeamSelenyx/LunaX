@@ -23,10 +23,13 @@ declare(strict_types=1);
 
 namespace pocketmine\command\overload;
 
+use pocketmine\command\CommandSender;
 use pocketmine\entity\Entity;
 use pocketmine\math\Vector3;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
+use pocketmine\Server;
+use pocketmine\world\World;
 use function abs;
 use function array_filter;
 use function array_rand;
@@ -37,6 +40,7 @@ use function explode;
 use function fmod;
 use function in_array;
 use function is_array;
+use function is_string;
 use function method_exists;
 use function preg_match;
 use function rtrim;
@@ -55,40 +59,63 @@ class ParameterDataConverter{
 
 	private const BRACE_KEYS = ['scores', 'haspermission', 'hasitem'];
 
+	private const DISTANCE_SORTED_TYPES = ['p', 'n'];
+
 	private const FAMILY_CLASS_MAP = [
 		\pocketmine\entity\Living::class => 'mob',
 	];
 
-	public function __construct(){
-		//NOPE
+	public CommandSender $sender;
+	public string $targetArg;
+
+	public function __construct(CommandSender $sender, string $targetArg){
+		$this->sender = $sender;
+		$this->targetArg = $targetArg;
 	}
 
 	/**
-	 * @return Entity[]|null
+	 * @return array<int, Entity>|array{0: string}|null
 	 */
-	public function getTargetConverter(Player $player, string $targetArg) : ?array{
-		if(!$this->isSelector($targetArg)){
-			$target = $player->getServer()->getPlayerByPrefix($targetArg);
-			return $target !== null ? [$target] : null;
+	public function getTargetConverter() : ?array{
+		if(!$this->isSelector()){
+			return [$this->targetArg];
 		}
 
-		$selector = $this->parseSelector($targetArg);
+		$selector = $this->parseSelector();
 		if($selector === null){
 			return null;
 		}
 
-		return $this->resolveSelector($player, $selector);
+		return $this->resolveSelector($selector);
 	}
 
-	private function isSelector(string $arg) : bool{
-		return strlen($arg) >= 2 && $arg[0] === '@';
+	/**
+	 * @return Player[]|null
+	 */
+	public function getPlayerTargetConverter() : ?array{
+		$result = $this->getTargetConverter();
+		if($result === null){
+			return null;
+		}
+
+		if(isset($result[0]) && is_string($result[0])){
+			$target = Server::getInstance()->getPlayerByPrefix($result[0]);
+			return $target !== null ? [$target] : null;
+		}
+
+		/** @var Entity[] $result */
+		return array_values(array_filter($result, static fn(Entity $e) : bool => $e instanceof Player));
+	}
+
+	private function isSelector() : bool{
+		return strlen($this->targetArg) >= 2 && $this->targetArg[0] === '@';
 	}
 
 	/**
 	 * @return array{type: string, arguments: array<int, array{0: string, 1: string}>}|null
 	 */
-	private function parseSelector(string $selector) : ?array{
-		$selector = trim($selector);
+	private function parseSelector() : ?array{
+		$selector = trim($this->targetArg);
 		if(!preg_match('/^@([a-zA-Z])(?:\[(.*)])?$/s', $selector, $matches)){
 			return null;
 		}
@@ -231,36 +258,83 @@ class ParameterDataConverter{
 	}
 
 	/**
-	 * @param array{type: string, arguments: array<int, array{0: string, 1: string}>} $selector
-	 * @return Entity[]
+	 * @param array<string, string> $single
 	 */
-	private function resolveSelector(Entity $executor, array $selector) : array{
+	private function resolveOrigin(array $single) : ?Vector3{
+		$entityPos = $this->sender instanceof Entity ? $this->sender->getPosition() : null;
+
+		$x = isset($single['x']) ? (float) $single['x'] : $entityPos?->getX();
+		$y = isset($single['y']) ? (float) $single['y'] : $entityPos?->getY();
+		$z = isset($single['z']) ? (float) $single['z'] : $entityPos?->getZ();
+
+		if($x === null || $y === null || $z === null){
+			return null;
+		}
+
+		return new Vector3($x, $y, $z);
+	}
+
+	/**
+	 * @param array<string, string> $single
+	 */
+	private function requiresOrigin(string $type, array $single) : bool{
+		if(in_array($type, self::DISTANCE_SORTED_TYPES, true)){
+			return true;
+		}
+		if(isset($single['dx']) || isset($single['dy']) || isset($single['dz']) || isset($single['r']) || isset($single['rm'])){
+			return true;
+		}
+		if(in_array($type, ['a', 'e'], true) && isset($single['c'])){
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param array{type: string, arguments: array<int, array{0: string, 1: string}>} $selector
+	 * @return Entity[]|null
+	 */
+	private function resolveSelector(array $selector) : ?array{
 		if($selector['type'] === 's'){
-			return [$executor];
+			return $this->sender instanceof Entity ? [$this->sender] : null;
 		}
 
 		[$single, $filters, $braces] = $this->groupArguments($selector['arguments']);
 
-		$world = $executor->getWorld();
-		$server = $world->getServer();
+		$requestedWorld = null;
+		if(isset($single['world'])){
+			$requestedWorld = Server::getInstance()->getWorldManager()->getWorldByName($single['world']);
+			if($requestedWorld === null){
+				return [];
+			}
+		}
 
-		$origin = new Vector3(
-			isset($single['x']) ? (float) $single['x'] : $executor->getPosition()->getX(),
-			isset($single['y']) ? (float) $single['y'] : $executor->getPosition()->getY(),
-			isset($single['z']) ? (float) $single['z'] : $executor->getPosition()->getZ()
-		);
+		$origin = $this->resolveOrigin($single);
+		if($origin === null){
+			if($this->requiresOrigin($selector['type'], $single)){
+				return null;
+			}
+			$origin = new Vector3(0.0, 0.0, 0.0);
+		}
+
+		$poolWorld = $requestedWorld ?? ($this->sender instanceof Entity ? $this->sender->getWorld() : null);
+		$needsWorldPool = in_array($selector['type'], ['e', 'n'], true) || ($selector['type'] === 'r' && isset($filters['type']));
+		if($needsWorldPool && $poolWorld === null){
+			return null;
+		}
+
+		$server = Server::getInstance();
 
 		$candidates = match($selector['type']){
 			'a' => $server->getOnlinePlayers(),
 			'p' => $server->getOnlinePlayers(),
-			'e', 'n' => $world->getEntities(),
-			'r' => isset($filters['type']) ? $world->getEntities() : $server->getOnlinePlayers(),
+			'e', 'n' => $poolWorld?->getEntities() ?? [],
+			'r' => isset($filters['type']) ? ($poolWorld?->getEntities() ?? []) : $server->getOnlinePlayers(),
 			default => [],
 		};
 
-		//cheap numeric checks first, expensive ones (inventory scans, reflection) last, so a
-		//single failing predicate skips the rest of the checks for that entity
 		$predicates = array_filter([
+			$this->makeWorldPredicate($requestedWorld),
 			$this->makeVolumePredicate($single, $origin),
 			$this->makeRadiusPredicate($single, $origin),
 			$this->makeRotationPredicate($single),
@@ -347,6 +421,15 @@ class ParameterDataConverter{
 			return in_array($actual, $positives, true);
 		}
 		return true;
+	}
+
+	private function makeWorldPredicate(?World $world) : ?callable{
+		if($world === null){
+			return null;
+		}
+		return static function(Entity $e) use ($world) : bool{
+			return $e->getWorld() === $world;
+		};
 	}
 
 	/**
@@ -514,7 +597,7 @@ class ParameterDataConverter{
 
 		return function(Entity $e) use ($entries) : bool{
 			$name = $e instanceof Player ? $e->getName() : $e->getNameTag();
-			return $this->matchesOrExcludeList($entries, $name);
+			return $this->matchesOrExcludeList($entries, strtolower($name), static fn(string $v) : string => strtolower($v));
 		};
 	}
 
