@@ -273,14 +273,12 @@ abstract class Command{
 
 	public function getTargetConverter(CommandSender $sender, string $targetArg = "") : ?array{
 		$converter = new ParameterDataConverter($sender, $targetArg);
-		$targets = $converter->getTargetConverter();
-		return $targets;
+		return $converter->getTargetConverter();
 	}
 
 	public function getPlayerTargetConverter(CommandSender $sender, string $targetArg = "") : ?array{
 		$converter = new ParameterDataConverter($sender, $targetArg);
-		$targets = $converter->getPlayerTargetConverter();
-		return $targets;
+		return $converter->getPlayerTargetConverter();
 	}
 
 	public function __toString() : string{
