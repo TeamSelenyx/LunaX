@@ -29,6 +29,9 @@ use pocketmine\item\enchantment\EnchantingHelper;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\StringToEnchantmentParser;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use function count;
 
@@ -40,6 +43,18 @@ class EnchantCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_enchant_description(),
 			KnownTranslationFactory::commands_enchant_usage()
 		);
+		$this->setOverloads([
+			[
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::standard("enchantmentId", AvailableCommandsPacket::ARG_TYPE_INT),
+				CommandParameter::standard("level", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
+			],
+			[
+				CommandParameter::standard("player", AvailableCommandsPacket::ARG_TYPE_TARGET),
+				CommandParameter::enum("enchantmentName", new CommandHardEnum("Enchant", []), 0),
+				CommandParameter::standard("level", AvailableCommandsPacket::ARG_TYPE_INT, 0, true)
+			]
+		]);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_ENCHANT_SELF,
 			DefaultPermissionNames::COMMAND_ENCHANT_OTHER

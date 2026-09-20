@@ -43,6 +43,7 @@ class StatusCommand extends VanillaCommand{
 			"status",
 			l10n::pocketmine_command_status_description()
 		);
+		$this->setOverloads();
 		$this->setPermission(DefaultPermissionNames::COMMAND_STATUS);
 	}
 

@@ -27,6 +27,8 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\permission\DefaultPermissionNames;
 use function count;
 use function inet_pton;
@@ -40,6 +42,12 @@ class PardonIpCommand extends VanillaCommand{
 			KnownTranslationFactory::commands_unbanip_usage(),
 			["unban-ip"]
 		);
+		$this->setOverloads(
+		[
+			[
+				CommandParameter::standard("address", AvailableCommandsPacket::ARG_TYPE_STRING)
+			]
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_UNBAN_IP);
 	}
 

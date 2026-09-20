@@ -25,6 +25,8 @@ namespace pocketmine\command\defaults;
 
 use pocketmine\command\CommandSender;
 use pocketmine\lang\KnownTranslationFactory;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\plugin\Plugin;
@@ -47,6 +49,12 @@ class VersionCommand extends VanillaCommand{
 			KnownTranslationFactory::pocketmine_command_version_usage(),
 			["ver", "about"]
 		);
+		$this->setOverloads([
+			[],
+			[
+				CommandParameter::standard("plugin", AvailableCommandsPacket::ARG_TYPE_STRING)
+			]
+		]);
 		$this->setPermission(DefaultPermissionNames::COMMAND_VERSION);
 	}
 

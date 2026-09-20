@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\inventory\transaction\action;
 
+use pocketmine\block\inventory\BeaconInventory;
 use pocketmine\inventory\transaction\TransactionValidationException;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
@@ -39,6 +40,9 @@ class DestroyItemAction extends InventoryAction{
 	}
 
 	public function validate(Player $source) : void{
+		if($source->getCurrentWindow() instanceof BeaconInventory){
+			return;
+		}
 		if($source->hasFiniteResources()){
 			throw new TransactionValidationException("Player has finite resources, cannot destroy items");
 		}
