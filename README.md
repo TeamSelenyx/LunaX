@@ -18,13 +18,13 @@
 빠르진 않지만 꾸준하게 업데이트를 진행 중이고, Command Overload, Persona 스킨등등 기존 PocketMine-MP에서 볼 수 없던 기능들도 개발하고 있습니다.
 
 ## :rocket: Luna X 특화 기능
-- [ ] Command Overload
+- [x] Command Overload
   * 명령어 자동완성 및 사용 방법 표시
 - [ ] Persona 스킨
   * 사용자가 커스텀한 스킨을 서버에서 사용
-- [ ] Vanilla 아이템 및 블록의 기능
+- [x] Vanilla 아이템 및 블록의 기능
   * 신호기, 석궁, 삼지창 등등 기존 PocketMine-MP에는 없던 아이템 및 블록
-- [ ] 공허 월드
+- [x] 공허 월드
   * 드넓은 월드 중앙에 돌로 된 작은 플랫폼만 있는 월드
   * 서버 로비를 만들기에 매우 최적
 
