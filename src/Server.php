@@ -89,8 +89,11 @@ use pocketmine\plugin\PluginOwned;
 use pocketmine\plugin\ScriptPluginLoader;
 use pocketmine\promise\Promise;
 use pocketmine\promise\PromiseResolver;
+use pocketmine\resourcepacks\ResourcePackCdnServer;
 use pocketmine\resourcepacks\ResourcePackManager;
+use pocketmine\resourcepacks\ZippedResourcePack;
 use pocketmine\scheduler\AsyncPool;
+use pocketmine\scheduler\AsyncTask;
 use pocketmine\scheduler\TimingsCollectionTask;
 use pocketmine\scheduler\TimingsControlTask;
 use pocketmine\snooze\SleeperHandler;
@@ -118,6 +121,7 @@ use pocketmine\world\format\io\WorldProviderManager;
 use pocketmine\world\format\io\WritableWorldProviderManagerEntry;
 use pocketmine\world\generator\Generator;
 use pocketmine\world\generator\GeneratorManager;
+use pocketmine\world\generator\GeneratorManagerEntry;
 use pocketmine\world\generator\InvalidGeneratorOptionsException;
 use pocketmine\world\Position;
 use pocketmine\world\World;
@@ -127,6 +131,7 @@ use pocketmine\YmlServerProperties as Yml;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Filesystem\Path;
 use function array_fill;
+use function array_keys;
 use function array_sum;
 use function base64_encode;
 use function chr;
@@ -149,6 +154,7 @@ use function is_object;
 use function is_resource;
 use function is_string;
 use function json_decode;
+use function json_encode;
 use function max;
 use function microtime;
 use function min;
@@ -164,16 +170,20 @@ use function spl_object_id;
 use function sprintf;
 use function str_repeat;
 use function str_replace;
+use function stream_socket_client;
+use function stream_socket_get_name;
 use function stripos;
 use function strlen;
 use function strrpos;
 use function strtolower;
 use function strval;
+use function substr;
 use function time;
 use function touch;
 use function trim;
 use function yaml_parse;
 use const DIRECTORY_SEPARATOR;
+use const JSON_THROW_ON_ERROR;
 use const PHP_EOL;
 use const PHP_INT_MAX;
 
@@ -265,6 +275,7 @@ class Server{
 	private CraftingManager $craftingManager;
 
 	private ResourcePackManager $resourceManager;
+	private ?ResourcePackCdnServer $resourcePackCdnServer = null;
 
 	private WorldManager $worldManager;
 
@@ -932,6 +943,17 @@ class Server{
 				return $promises;
 			});
 
+			//Pre-warm all async workers immediately so the first chunk request from a joining player doesn't have to
+			//pay for cold thread startup (autoloader/memory-limit init) on the critical path before the client's
+			//short "waiting for world data" timeout expires.
+			for($workerId = 0, $poolSizeToWarm = $this->asyncPool->getSize(); $workerId < $poolSizeToWarm; $workerId++){
+				$this->asyncPool->submitTaskToWorker(new class extends AsyncTask{
+					public function onRun() : void{
+						//NOOP - this task exists only to force the worker thread to start immediately
+					}
+				}, $workerId);
+			}
+
 			$netCompressionThreshold = -1;
 			if($this->configGroup->getPropertyInt(Yml::NETWORK_BATCH_THRESHOLD, 256) >= 0){
 				$netCompressionThreshold = $this->configGroup->getPropertyInt(Yml::NETWORK_BATCH_THRESHOLD, 256);
@@ -1013,6 +1035,7 @@ class Server{
 			$this->craftingManager = CraftingManagerFromDataHelper::make(BedrockDataFiles::RECIPES);
 
 			$this->resourceManager = new ResourcePackManager(Path::join($this->dataPath, "resource_packs"), $this->logger);
+			$this->startResourcePackCdnServer();
 
 			$pluginGraylist = null;
 			$graylistFile = Path::join($this->dataPath, "plugin_list.yml");
@@ -1048,7 +1071,7 @@ class Server{
 			$this->worldManager->setAutoSave($this->configGroup->getConfigBool(ServerProperties::AUTO_SAVE, $this->worldManager->getAutoSave()));
 			$this->worldManager->setAutoSaveInterval($this->configGroup->getPropertyInt(Yml::TICKS_PER_AUTOSAVE, $this->worldManager->getAutoSaveInterval()));
 
-			$this->updater = new UpdateChecker($this, $this->configGroup->getPropertyString(Yml::AUTO_UPDATER_HOST, "update.pmmp.io"));
+			$this->updater = new UpdateChecker($this, $this->configGroup->getPropertyString(Yml::AUTO_UPDATER_HOST, "update.axolotl-pm.org"));
 
 			$this->queryInfo = new QueryInfo($this);
 
@@ -1098,12 +1121,12 @@ class Server{
 			$github = VersionInfo::GITHUB_URL;
 			$splash = "\n\n";
 			foreach([
-				KnownTranslationFactory::pocketmine_server_url_discord("{$highlight}https://discord.pmmp.io{$reset}"),
+				KnownTranslationFactory::pocketmine_server_url_discord("{$highlight}https://discord.axolotl-pm.org{$reset}"),
 				KnownTranslationFactory::pocketmine_server_url_docs("{$highlight}https://doc.pmmp.io{$reset}"),
 				KnownTranslationFactory::pocketmine_server_url_sourceCode("{$highlight}{$github}{$reset}"),
 				KnownTranslationFactory::pocketmine_server_url_freePlugins("{$highlight}https://poggit.pmmp.io/plugins{$reset}"),
 				KnownTranslationFactory::pocketmine_server_url_donations("{$highlight}https://patreon.com/pocketminemp{$reset}"),
-				KnownTranslationFactory::pocketmine_server_url_translations("{$highlight}https://translate.pocketmine.net{$reset}"),
+				KnownTranslationFactory::pocketmine_server_url_translations("{$highlight}https://translate.axolotl-pm.org{$reset}"),
 				KnownTranslationFactory::pocketmine_server_url_bugReporting("{$highlight}{$github}/issues{$reset}")
 			] as $link){
 				$splash .= "- " . $this->language->translate($link) . "\n";
@@ -1129,7 +1152,7 @@ class Server{
 	}
 
 	private function startupPrepareWorlds() : bool{
-		$getGenerator = function(string $generatorName, string $generatorOptions, string $worldName) : ?string{
+		$getGeneratorEntry = function(string $generatorName, string $generatorOptions, string $worldName) : ?GeneratorManagerEntry{
 			$generatorEntry = GeneratorManager::getInstance()->getGenerator($generatorName);
 			if($generatorEntry === null){
 				$this->logger->error($this->language->translate(KnownTranslationFactory::pocketmine_level_generationError(
@@ -1147,7 +1170,7 @@ class Server{
 				)));
 				return null;
 			}
-			return $generatorEntry->getGeneratorClass();
+			return $generatorEntry;
 		};
 
 		$anyWorldFailedToLoad = false;
@@ -1175,12 +1198,12 @@ class Server{
 				$generatorName = $options["generator"] ?? "default";
 				$generatorOptions = isset($options["preset"]) && is_string($options["preset"]) ? $options["preset"] : "";
 
-				$generatorClass = $getGenerator($generatorName, $generatorOptions, $name);
-				if($generatorClass === null){
+				$generatorEntry = $getGeneratorEntry($generatorName, $generatorOptions, $name);
+				if($generatorEntry === null){
 					$anyWorldFailedToLoad = true;
 					continue;
 				}
-				$creationOptions->setGeneratorClass($generatorClass);
+				$creationOptions->setGeneratorClass($generatorEntry->getGeneratorClass());
 				$creationOptions->setGeneratorOptions($generatorOptions);
 
 				$creationOptions->setDifficulty($this->getDifficulty());
@@ -1193,6 +1216,11 @@ class Server{
 					if($convertedSeed !== null){
 						$creationOptions->setSeed($convertedSeed);
 					}
+				}
+
+				$spawnPosition = $generatorEntry->getSpawnPosition($creationOptions->getSeed());
+				if($spawnPosition !== null){
+					$creationOptions->setSpawnPosition($spawnPosition);
 				}
 
 				$this->worldManager->generateWorld($name, $creationOptions);
@@ -1214,20 +1242,26 @@ class Server{
 				}
 				$generatorName = $this->configGroup->getConfigString(ServerProperties::DEFAULT_WORLD_GENERATOR);
 				$generatorOptions = $this->configGroup->getConfigString(ServerProperties::DEFAULT_WORLD_GENERATOR_SETTINGS);
-				$generatorClass = $getGenerator($generatorName, $generatorOptions, $default);
+				$generatorEntry = $getGeneratorEntry($generatorName, $generatorOptions, $default);
 
-				if($generatorClass === null){
+				if($generatorEntry === null){
 					$this->logger->emergency($this->language->translate(KnownTranslationFactory::pocketmine_level_defaultError()));
 					return false;
 				}
 				$creationOptions = WorldCreationOptions::create()
-					->setGeneratorClass($generatorClass)
+					->setGeneratorClass($generatorEntry->getGeneratorClass())
 					->setGeneratorOptions($generatorOptions);
 				$convertedSeed = Generator::convertSeed($this->configGroup->getConfigString(ServerProperties::DEFAULT_WORLD_SEED));
 				if($convertedSeed !== null){
 					$creationOptions->setSeed($convertedSeed);
 				}
 				$creationOptions->setDifficulty($this->getDifficulty());
+
+				$spawnPosition = $generatorEntry->getSpawnPosition($creationOptions->getSeed());
+				if($spawnPosition !== null){
+					$creationOptions->setSpawnPosition($spawnPosition);
+				}
+
 				$this->worldManager->generateWorld($default, $creationOptions);
 			}
 
@@ -1494,6 +1528,44 @@ class Server{
 	}
 
 	/**
+	 * Starts an internal HTTP server to serve resource packs as CDN downloads, and points every pack that doesn't
+	 * already have an explicit cdn_url configured in resource_packs.yml at it. This requires no configuration -
+	 * packs are served automatically as soon as they're loaded.
+	 */
+	private function startResourcePackCdnServer() : void{
+		$packFiles = [];
+		foreach($this->resourceManager->getResourceStack() as $pack){
+			if(!($pack instanceof ZippedResourcePack) || $this->resourceManager->getPackCdnUrl($pack->getPackId()) !== null){
+				continue;
+			}
+			$packFiles[$pack->getPackId()] = $pack->getPath();
+		}
+		if(count($packFiles) === 0){
+			return;
+		}
+
+		$host = "127.0.0.1";
+		$detect = @stream_socket_client("udp://8.8.8.8:80", $errno, $errstr);
+		if($detect !== false){
+			$localName = stream_socket_get_name($detect, false);
+			fclose($detect);
+			$colonPos = strrpos($localName, ":");
+			if($colonPos !== false){
+				$host = substr($localName, 0, $colonPos);
+			}
+		}
+
+		$port = $this->getPort() + 2;
+		$this->resourcePackCdnServer = new ResourcePackCdnServer($this->logger, "0.0.0.0", $port, json_encode($packFiles, JSON_THROW_ON_ERROR));
+		$this->resourcePackCdnServer->startAndWait();
+
+		foreach(array_keys($packFiles) as $packId){
+			$this->resourceManager->setPackCdnUrl($packId, "http://$host:$port/$packId");
+		}
+		$this->logger->info("Serving " . count($packFiles) . " resource pack(s) via CDN on $host:$port");
+	}
+
+	/**
 	 * Shuts the server down correctly
 	 */
 	public function shutdown() : void{
@@ -1561,6 +1633,11 @@ class Server{
 			if(isset($this->asyncPool)){
 				$this->logger->debug("Shutting down async task worker pool");
 				$this->asyncPool->shutdown();
+			}
+
+			if($this->resourcePackCdnServer !== null){
+				$this->logger->debug("Shutting down resource pack CDN server");
+				$this->resourcePackCdnServer->quit();
 			}
 
 			if(isset($this->configGroup)){

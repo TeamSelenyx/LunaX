@@ -56,6 +56,7 @@ class VersionCommand extends VanillaCommand{
 				TextFormat::GREEN . VersionInfo::NAME . TextFormat::RESET
 			));
 			$versionColor = VersionInfo::IS_DEVELOPMENT_BUILD ? TextFormat::YELLOW : TextFormat::GREEN;
+			$sender->sendMessage("Luna X 버전: " . $versionColor . VersionInfo::LUNA_X_VERSION . TextFormat::RESET);
 			$sender->sendMessage(KnownTranslationFactory::pocketmine_command_version_serverSoftwareVersion(
 				$versionColor . VersionInfo::VERSION()->getFullVersion() . TextFormat::RESET,
 				TextFormat::GREEN . VersionInfo::GIT_HASH() . TextFormat::RESET

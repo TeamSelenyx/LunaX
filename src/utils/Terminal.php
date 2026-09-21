@@ -70,6 +70,7 @@ abstract class Terminal{
 	public static string $COLOR_MATERIAL_LAPIS = "";
 	public static string $COLOR_MATERIAL_AMETHYST = "";
 	public static string $COLOR_MATERIAL_RESIN = "";
+	public static string $COLOR_PARTY_BLUE = "";
 
 	private static ?bool $formattingCodes = null;
 
@@ -133,6 +134,7 @@ abstract class Terminal{
 		self::$COLOR_MATERIAL_LAPIS = $color(24);
 		self::$COLOR_MATERIAL_AMETHYST = $color(98);
 		self::$COLOR_MATERIAL_RESIN = $color(208);
+		self::$COLOR_PARTY_BLUE = $color(111);
 	}
 
 	protected static function getEscapeCodes() : void{
@@ -158,7 +160,7 @@ abstract class Terminal{
 			self::$COLOR_GOLD = $colors >= 256 ? $setaf(214) : $setaf(3);
 			self::$COLOR_GRAY = $colors >= 256 ? $setaf(145) : $setaf(7);
 			self::$COLOR_DARK_GRAY = $colors >= 256 ? $setaf(59) : $setaf(8);
-			self::$COLOR_BLUE = $colors >= 256 ? $setaf(63) : $setaf(12);
+			self::$COLOR_BLUE = self::$COLOR_DARK_BLUE = self::$COLOR_MATERIAL_LAPIS = self::$COLOR_PARTY_BLUE = $setaf(4);
 			self::$COLOR_GREEN = $colors >= 256 ? $setaf(83) : $setaf(10);
 			self::$COLOR_AQUA = $colors >= 256 ? $setaf(87) : $setaf(14);
 			self::$COLOR_RED = $colors >= 256 ? $setaf(203) : $setaf(9);
@@ -177,12 +179,13 @@ abstract class Terminal{
 			self::$COLOR_MATERIAL_LAPIS = $colors >= 256 ? $setaf(24) : $setaf(12);
 			self::$COLOR_MATERIAL_AMETHYST = $colors >= 256 ? $setaf(98) : $setaf(13);
 			self::$COLOR_MATERIAL_RESIN = $colors >= 256 ? $setaf(208) : $setaf(11);
+			self::$COLOR_PARTY_BLUE = $colors >= 256 ? $setaf(111) : $setaf(12);
 		}else{
 			self::$COLOR_BLACK = self::$COLOR_DARK_GRAY = self::$COLOR_MATERIAL_NETHERITE = $setaf(0);
 			self::$COLOR_RED = self::$COLOR_DARK_RED = self::$COLOR_MATERIAL_REDSTONE = self::$COLOR_MATERIAL_COPPER = $setaf(1);
 			self::$COLOR_GREEN = self::$COLOR_DARK_GREEN = self::$COLOR_MATERIAL_EMERALD = $setaf(2);
 			self::$COLOR_YELLOW = self::$COLOR_GOLD = self::$COLOR_MINECOIN_GOLD = self::$COLOR_MATERIAL_GOLD = self::$COLOR_MATERIAL_RESIN = $setaf(3);
-			self::$COLOR_BLUE = self::$COLOR_DARK_BLUE = self::$COLOR_MATERIAL_LAPIS = $setaf(4);
+			self::$COLOR_BLUE = self::$COLOR_DARK_BLUE = self::$COLOR_MATERIAL_LAPIS = self::$COLOR_PARTY_BLUE = $setaf(4);
 			self::$COLOR_LIGHT_PURPLE = self::$COLOR_PURPLE = self::$COLOR_MATERIAL_AMETHYST = $setaf(5);
 			self::$COLOR_AQUA = self::$COLOR_DARK_AQUA = self::$COLOR_MATERIAL_DIAMOND = $setaf(6);
 			self::$COLOR_GRAY = self::$COLOR_WHITE = self::$COLOR_MATERIAL_QUARTZ = self::$COLOR_MATERIAL_IRON = $setaf(7);
@@ -257,6 +260,7 @@ abstract class Terminal{
 				TextFormat::MATERIAL_LAPIS => Terminal::$COLOR_MATERIAL_LAPIS,
 				TextFormat::MATERIAL_AMETHYST => Terminal::$COLOR_MATERIAL_AMETHYST,
 				TextFormat::MATERIAL_RESIN => Terminal::$COLOR_MATERIAL_RESIN,
+				TextFormat::PARTY_BLUE => Terminal::$COLOR_PARTY_BLUE,
 				default => $token,
 			};
 		}

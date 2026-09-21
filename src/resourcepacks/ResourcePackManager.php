@@ -67,6 +67,12 @@ class ResourcePackManager{
 	private array $encryptionKeys = [];
 
 	/**
+	 * @var string[]
+	 * @phpstan-var array<string, string>
+	 */
+	private array $cdnUrls = [];
+
+	/**
 	 * @param string $path Path to resource-packs directory.
 	 */
 	public function __construct(string $path, \Logger $logger){
@@ -95,12 +101,27 @@ class ResourcePackManager{
 			throw new \InvalidArgumentException("\"resource_stack\" key should contain a list of pack names");
 		}
 
-		foreach(Utils::promoteKeys($resourceStack) as $pos => $pack){
-			if(!is_string($pack) && !is_int($pack) && !is_float($pack)){
-				$logger->critical("Found invalid entry in resource pack list at offset $pos of type " . gettype($pack));
+		foreach(Utils::promoteKeys($resourceStack) as $pos => $entry){
+			$cdnUrl = null;
+			if(is_array($entry)){
+				$pack = $entry["path"] ?? $entry["file"] ?? null;
+				if(!is_string($pack)){
+					$logger->critical("Found invalid resource pack entry at offset $pos: missing \"path\" key");
+					continue;
+				}
+				if(isset($entry["cdn_url"])){
+					if(!is_string($entry["cdn_url"])){
+						$logger->critical("Found invalid resource pack entry at offset $pos: \"cdn_url\" must be a string");
+						continue;
+					}
+					$cdnUrl = $entry["cdn_url"];
+				}
+			}elseif(is_string($entry) || is_int($entry) || is_float($entry)){
+				$pack = (string) $entry;
+			}else{
+				$logger->critical("Found invalid entry in resource pack list at offset $pos of type " . gettype($entry));
 				continue;
 			}
-			$pack = (string) $pack;
 			try{
 				$newPack = $this->loadPackFromPath(Path::join($this->path, $pack));
 
@@ -125,6 +146,10 @@ class ResourcePackManager{
 						throw new ResourcePackException("Invalid encryption key length, must be exactly 32 bytes");
 					}
 					$this->encryptionKeys[$index] = $key;
+				}
+
+				if($cdnUrl !== null){
+					$this->cdnUrls[$index] = $cdnUrl;
 				}
 			}catch(ResourcePackException $e){
 				$logger->critical("Could not load resource pack \"$pack\": " . $e->getMessage());
@@ -247,6 +272,29 @@ class ResourcePackManager{
 				throw new \InvalidArgumentException("Encryption key must be exactly 32 bytes long");
 			}
 			$this->encryptionKeys[$id] = $key;
+		}else{
+			throw new \InvalidArgumentException("Unknown pack ID $id");
+		}
+	}
+
+	/**
+	 * Returns the CDN URL the client should download the specified pack from, or null if it should be transferred
+	 * over the game connection instead.
+	 */
+	public function getPackCdnUrl(string $id) : ?string{
+		return $this->cdnUrls[strtolower($id)] ?? null;
+	}
+
+	/**
+	 * Sets the CDN URL the client should download the specified pack from instead of transferring it over the game
+	 * connection. The pack must still be present locally; its size and hash are still read from the local file.
+	 */
+	public function setPackCdnUrl(string $id, ?string $url) : void{
+		$id = strtolower($id);
+		if($url === null){
+			unset($this->cdnUrls[$id]);
+		}elseif(isset($this->uuidList[$id])){
+			$this->cdnUrls[$id] = $url;
 		}else{
 			throw new \InvalidArgumentException("Unknown pack ID $id");
 		}
