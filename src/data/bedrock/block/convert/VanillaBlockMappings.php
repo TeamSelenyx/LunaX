@@ -184,7 +184,14 @@ final class VanillaBlockMappings{
 		$reg->mapSimple(Blocks::CHISELED_STONE_BRICKS(), Ids::CHISELED_STONE_BRICKS);
 		$reg->mapSimple(Blocks::CHISELED_TUFF(), Ids::CHISELED_TUFF);
 		$reg->mapSimple(Blocks::CHISELED_TUFF_BRICKS(), Ids::CHISELED_TUFF_BRICKS);
-		$reg->mapSimple(Blocks::CHORUS_PLANT(), Ids::CHORUS_PLANT);
+		$reg->mapModel(Model::create(Blocks::CHORUS_PLANT(), Ids::CHORUS_PLANT)->properties([
+			new DummyProperty(StateNames::MC_CONNECTION_DOWN, false),
+			new DummyProperty(StateNames::MC_CONNECTION_EAST, false),
+			new DummyProperty(StateNames::MC_CONNECTION_NORTH, false),
+			new DummyProperty(StateNames::MC_CONNECTION_SOUTH, false),
+			new DummyProperty(StateNames::MC_CONNECTION_UP, false),
+			new DummyProperty(StateNames::MC_CONNECTION_WEST, false)
+		]));
 		$reg->mapSimple(Blocks::CLAY(), Ids::CLAY);
 		$reg->mapSimple(Blocks::COAL(), Ids::COAL_BLOCK);
 		$reg->mapSimple(Blocks::COAL_ORE(), Ids::COAL_ORE);
@@ -1391,7 +1398,12 @@ final class VanillaBlockMappings{
 			new IntProperty(StateNames::MOISTURIZED_AMOUNT, 0, 7, fn(Farmland $b) => $b->getWetness(), fn(Farmland $b, int $v) => $b->setWetness($v))
 		]));
 		$reg->mapModel(Model::create(Blocks::FIRE(), Ids::FIRE)->properties([
-			new IntProperty(StateNames::AGE, 0, 15, fn(Fire $b) => $b->getAge(), fn(Fire $b, int $v) => $b->setAge($v))
+			new IntProperty(StateNames::AGE, 0, 15, fn(Fire $b) => $b->getAge(), fn(Fire $b, int $v) => $b->setAge($v)),
+			new DummyProperty(StateNames::MC_CONNECTION_EAST, false),
+			new DummyProperty(StateNames::MC_CONNECTION_NORTH, false),
+			new DummyProperty(StateNames::MC_CONNECTION_SOUTH, false),
+			new DummyProperty(StateNames::MC_CONNECTION_UP, false),
+			new DummyProperty(StateNames::MC_CONNECTION_WEST, false)
 		]));
 		$reg->mapModel(Model::create(Blocks::FLOWER_POT(), Ids::FLOWER_POT)->properties([
 			BoolProperty::unused(StateNames::UPDATE_BIT, false)
@@ -1480,7 +1492,13 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::RAIL(), Ids::RAIL)->properties([
 			new IntProperty(StateNames::RAIL_DIRECTION, 0, 9, fn(Rail $b) => $b->getShape(), fn(Rail $b, int $v) => $b->setShape($v))
 		]));
-		$reg->mapModel(Model::create(Blocks::REDSTONE_WIRE(), Ids::REDSTONE_WIRE)->properties([$commonProperties->analogRedstoneSignal]));
+		$reg->mapModel(Model::create(Blocks::REDSTONE_WIRE(), Ids::REDSTONE_WIRE)->properties([
+			$commonProperties->analogRedstoneSignal,
+			new DummyProperty(StateNames::REDSTONE_EAST, StringValues::REDSTONE_EAST_NONE),
+			new DummyProperty(StateNames::REDSTONE_NORTH, StringValues::REDSTONE_NORTH_NONE),
+			new DummyProperty(StateNames::REDSTONE_SOUTH, StringValues::REDSTONE_SOUTH_NONE),
+			new DummyProperty(StateNames::REDSTONE_WEST, StringValues::REDSTONE_WEST_NONE)
+		]));
 		$reg->mapModel(Model::create(Blocks::RESPAWN_ANCHOR(), Ids::RESPAWN_ANCHOR)->properties([
 			new IntProperty(StateNames::RESPAWN_ANCHOR_CHARGE, 0, 4, fn(RespawnAnchor $b) => $b->getCharges(), fn(RespawnAnchor $b, int $v) => $b->setCharges($v))
 		]));

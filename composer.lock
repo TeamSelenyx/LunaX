@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "180f12a87260ca27cd5ca669019b9a17",
+    "content-hash": "1d8d59f576908494e9b6284c9465ebcc",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -928,26 +928,21 @@
             "name": "teamselenyx/bedrock-data",
             "version": "dev-bedrock-1.26.60",
             "dist": {
-                "type": "path",
-                "url": "../TeamSelenyx-BedrockData",
-                "reference": "09e1bdf73107f47e5e5118633a0b06eb366be98a"
+                "type": "zip",
+                "url": "https://github.com/TeamSelenyx/BedrockData/archive/846a0fdc8fa8d34d7fa7cec4d7f33639f1c8e16b.zip",
+                "reference": "846a0fdc8fa8d34d7fa7cec4d7f33639f1c8e16b"
             },
             "type": "library",
             "license": [
                 "CC0-1.0"
-            ],
-            "description": "Blobs of data generated from Minecraft: Bedrock Edition, used by PocketMine-MP",
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            ]
         },
         {
             "name": "teamselenyx/bedrock-protocol",
             "version": "dev-bedrock-1.26.60",
             "dist": {
-                "type": "path",
-                "url": "../TeamSelenyx-BedrockProtocol",
+                "type": "zip",
+                "url": "https://github.com/TeamSelenyx/BedrockProtocol/archive/6b8d5ab28e675d18d35fa175c6c90b25f1589e6d.zip",
                 "reference": "6b8d5ab28e675d18d35fa175c6c90b25f1589e6d"
             },
             "require": {
@@ -960,36 +955,15 @@
                 "pocketmine/nbt": "^1.0.0",
                 "ramsey/uuid": "^4.1"
             },
-            "require-dev": {
-                "phpstan/phpstan": "2.1.0",
-                "phpstan/phpstan-phpunit": "^2.0.0",
-                "phpstan/phpstan-strict-rules": "^2.0.0",
-                "phpunit/phpunit": "^9.5 || ^10.0 || ^11.0"
-            },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "pocketmine\\network\\mcpe\\protocol\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "pocketmine\\network\\mcpe\\protocol\\": "tests/phpunit/"
-                }
-            },
-            "scripts": {
-                "update-create-methods": [
-                    "@php tools/generate-create-static-methods.php"
-                ]
-            },
             "license": [
                 "LGPL-3.0"
-            ],
-            "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            ]
         }
     ],
     "packages-dev": [
