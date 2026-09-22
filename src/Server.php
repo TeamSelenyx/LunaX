@@ -58,6 +58,7 @@ use pocketmine\network\mcpe\compression\ZlibCompressor;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\encryption\EncryptionContext;
 use pocketmine\network\mcpe\EntityEventBroadcaster;
+use pocketmine\network\mcpe\nethernet\NetherNetInterface;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\PacketBroadcaster;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
@@ -1328,6 +1329,18 @@ class Server{
 
 		if($useQuery){
 			$this->network->registerRawPacketHandler(new QueryHandler($this));
+		}
+
+		$netherNetBridgePort = $this->configGroup->getPropertyInt("network.nethernet-bridge-port", 0);
+		if($netherNetBridgePort > 0){
+			$this->network->registerInterface(new NetherNetInterface(
+				$this,
+				$this->network,
+				$netherNetBridgePort,
+				$packetBroadcaster,
+				$entityEventBroadcaster,
+				$typeConverter
+			));
 		}
 
 		foreach($this->getIPBans()->getEntries() as $entry){

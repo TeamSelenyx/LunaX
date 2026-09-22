@@ -64,6 +64,8 @@ memory:
     chunk-radius: 4
 
 network:
+  # Local TCP port used by the optional NetherNet WebRTC sidecar. 0 disables it.
+  nethernet-bridge-port: 0
   #Threshold for batching packets, in bytes. Only these packets will be compressed
   #Set to 0 to compress everything, -1 to disable.
   batch-threshold: 256
